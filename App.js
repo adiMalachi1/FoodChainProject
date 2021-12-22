@@ -1,11 +1,18 @@
 import React from "react";
-import HomeScreen from './Screens/HomeScreen';
+import RootStackScreen from './Screens/RootStackScreen';
+import { 
+  NavigationContainer, 
+  DefaultTheme as NavigationDefaultTheme,
+  DarkTheme as NavigationDarkTheme
+} from '@react-navigation/native';
 
-const App = props => {
-
-    return (
-        <HomeScreen />
-    );
-};
-
+const App = () => {
+  return(
+    <NavigationContainer>
+      <RootStackScreen>
+        
+      </RootStackScreen>
+    </NavigationContainer>
+  )
+}
 export default App;
