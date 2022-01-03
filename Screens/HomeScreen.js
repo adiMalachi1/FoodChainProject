@@ -15,14 +15,16 @@ const HomeScreen = ({navigation}) => {
                 source={require('../assets/logoFoodChain.png')}
                 style={Styles.logo}
             />
-            <View>
-                <Text style={Styles.textSecondHeader}>Food chain app</Text>
-            </View>
-            <View> 
-            <Text style ={Styles.textheader}>Welcome!</Text>
-            </View>   
+            <View style = { Styles.center}>
+                <Text style={Styles.textSecondHeader}>ברוכים הבאים</Text>
+                <Text style={Styles.textSecondHeader}>לאפליקצית FoodChain!</Text>
 
-            <TouchableOpacity onPress={()=> navigation.navigate('SignInScreen')}
+            </View>
+            {/* <View> 
+            <Text style ={Styles.textheader}>Welcome!</Text>
+            </View>    */}
+
+            <TouchableOpacity onPress={()=> navigation.navigate('LoginScreen')}
                 style={Styles.conTouch} 
             ><Text style = {[Styles.textColor,{fontSize: 20,}]}>המשך</Text></TouchableOpacity>
 
@@ -48,12 +50,19 @@ const Styles = StyleSheet.create({
         fontSize: 40,
         paddingBottom:200,
       },
+      center:{
+        alignItems:'center',
+        alignContent:'center',
+        // textAlign: 'center',
+        padding: 20,
+        paddingBottom:100,
+      },
       textSecondHeader:{
         fontWeight: 'bold',
         color: 'white',
         fontSize: 30,
-        paddingBottom:20,
-        paddingTop:20,
+        paddingBottom:10,
+        // paddingTop:20,
       },
       logo: {
         height: 100,
