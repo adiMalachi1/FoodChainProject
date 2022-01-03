@@ -8,13 +8,13 @@ import {
     Button
 } from 'react-native';
 
-const SignInScreen = ({navigation}) => {
+const SignInScreen = () => {
     return (
         <View style ={Styles.container}>
             <Text>SignIn Screen</Text>
             <Button
                 title = "Clicked Me!"
-                 onPress={()=> navigation.navigate('SignUpScreen')}
+                onPress = {()=>alert("button Clicked!")}
             />
         </View>
 
