@@ -4,6 +4,8 @@ import HomeScreen from './HomeScreen';
 import LoginScreen from './LoginScreen';
 import SignInScreen from './SignInScreen';
 import SignUpScreen from './SignupScreen';
+import FormGetter from './FormGetter';
+import FormGiver from './FormGiver';
 
 const RootStack = createStackNavigator();
 
@@ -15,6 +17,10 @@ const RootStackScreen = ({navigation}) => (
         <RootStack.Screen name="LoginScreen" component={LoginScreen}/>
         <RootStack.Screen name="SignInScreen" component={SignInScreen}/>
         <RootStack.Screen name="SignUpScreen" component={SignUpScreen}/>
+        <RootStack.Screen name="FormGetter" component={FormGetter}/>
+        <RootStack.Screen name="FormGiver" component={FormGiver}/>
+
+
     </RootStack.Navigator>
 );
 
