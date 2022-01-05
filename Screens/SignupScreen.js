@@ -36,7 +36,7 @@ const SignUpScreen = ({navigation}) => {
         <TextInput
         value={user}
         onChangeText={(userName) => setUser(userName)}
-        placeholder="שם עמותה/עסק"
+        placeholder="שם תורם/נתרם"
         autoCapitalize="none"
         textAlign='right'
         autoCorrect={false}
