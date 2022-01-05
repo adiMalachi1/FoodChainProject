@@ -16,6 +16,8 @@ const SignUpScreen = ({navigation}) => {
     const [user, setUser] = useState();
     const [email, setEmail] = useState();
     const [password, setPassword] = useState();
+    const [phone, setPhone] = useState();
+
     const [confirmPassword, setConfirmPassword] = useState('')
    
     const check = () => {
@@ -52,6 +54,15 @@ const SignUpScreen = ({navigation}) => {
         style = {Styles.textInput}
       />
        <TextInput
+        value={phone}
+        onChangeText={(userPhone) => setPhone(userPhone)}
+        placeholder="מס' פלאפון"
+        keyboardType="numeric"
+        autoCapitalize="none"
+        autoCorrect={false}
+        style = {Styles.textInput}
+      />
+       <TextInput
         labelValue={password}
         onChangeText={(userPassword) => setPassword(userPassword)}
         placeholder="סיסמה" 
@@ -68,7 +79,7 @@ const SignUpScreen = ({navigation}) => {
         style = {Styles.textInput}
       />
        
-    <View style={{ flexDirection: 'row', justifyContent: 'center' , paddingBottom:20,}}>
+    <View style={{ flexDirection: 'row', justifyContent: 'center' , paddingBottom:10,}}>
         <View>
         <Text style ={Styles.text}>תורם</Text>
             <RadioButton
@@ -110,7 +121,7 @@ const Styles = StyleSheet.create({
     container: {
         backgroundColor: '#009387',
         flex: 1,
-        paddingTop:100,
+        paddingTop:75,
         
         // justifyContent: 'center',
         // alignItems: 'center',
@@ -135,7 +146,7 @@ const Styles = StyleSheet.create({
     textAlign:'center',
     fontSize:25,
     fontWeight:'bold',
-    paddingBottom:50,
+    paddingBottom:25,
 
     },
     conTouch :{
