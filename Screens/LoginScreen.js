@@ -1,53 +1,84 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import { 
     View, 
     Text, 
     TouchableOpacity,
     TextInput,
-    Platform, 
     StyleSheet,
     Image,
-    Button
 } from 'react-native';
-import { I18nManager } from 'react-native';
-
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import LinearGradient from 'react-native-linear-gradient';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import AntDesign from 'react-native-vector-icons/AntDesign';
+// import AsyncStorage from '@react-native-community/async-storage'
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import {createUserWithEmailAndPassword } from "firebase/auth";
+import {auth} from '../FirebaseConfig';
 
 const LoginScreen = ({navigation}) => {
-  const [email, setEmail] = useState();
-  const [password, setPassword] = useState();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState();
-  const passwordVal = ()=>{
-    if(password === ""){
-      alert("סיסמא הינה שדה חובה")
-      navigation.navigate('LoginScreen')
+  
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(user => {
+      if (user) {
+        navigation.navigate("SignInScreen")
+      }
+    })
+
+    return unsubscribe
+  }, [])
+
+ 
+
+  const handleLogin =()=>{
+    if(email === ""){
+      alert("אמייל הינו שדה חובה")
+      return;
+
+    }
     
-     }
-     else{
-      setPassword("")
-      navigation.navigate('LoginScreen')
+    else if(password === ""){
+      alert("סיסמא הינה שדה חובה")
+        return;
+    }
+   
+    else{
+      auth.signInWithEmailAndPassword(email,password)
+      .then(userCredentials => {
+        const user = userCredentials.user;
+        console.log('Logged in with:',user.email)
+      })
+      .catch(error=>alert(error.message))
+         return;
+      // navigation.navigate('SignInScreen')
+    }
   }
-    // if(password.trim().length < 6){
-    //   alert("הסיסמא צריכה להיות בעלת 6 תווים לפחות")
-    // }
-  }
-  const emailValidate = () =>
-    {
-        if(email=== ""){
-            alert("אמייל הינו שדה חובה")
-            navigation.navigate('LoginScreen')
-        }
-        else{
-            setEmailError("")
-            navigation.navigate('LoginScreen')
 
-            // this.setState({emailError:""})
+  // const passwordVal = ()=>{
+  //   if(password === ""){
+  //     alert("סיסמא הינה שדה חובה")
+  //     navigation.navigate('LoginScreen')
+    
+  //    }
+  //    else{
+  //     setPassword("")
+  //     navigation.navigate('LoginScreen')
+  //   }
+  // }
+  // const emailValidate = () =>
+  //   {
+  //       if(email=== ""){
+  //           alert("אמייל הינו שדה חובה")
+  //           navigation.navigate('LoginScreen')
+  //           // this.setState({emailError:"אמייל הינו שדה חובה"})
+  //       }
+  //       else{
+  //           setEmailError("")
+  //           navigation.navigate('LoginScreen')
 
-        }
-    } 
+  //           // this.setState({emailError:""})
+
+  //       }
+  //   } 
   return(
     <View style={Styles.container}>
     <View style =  {Styles.center}>
@@ -58,12 +89,13 @@ const LoginScreen = ({navigation}) => {
      </View> 
     
     <Text style={Styles.textheader}>ברוכים הבאים!</Text>
+    <View style={Styles.inputContainer}>
     <TextInput
         value={email}
         onChangeText={(email) => setEmail(email)}
         placeholder="אימייל"
         // iconType="user"
-        onBlur={()=>emailValidate()}
+        // onBlur={()=>emailValidate()}
         autoFocus={true}
         keyboardType="email-address"
         autoCapitalize="none"
@@ -74,23 +106,20 @@ const LoginScreen = ({navigation}) => {
        <TextInput
         value={password}
         onChangeText={(password) => setPassword(password)}
-        onBlur={()=>passwordVal()}
+        // onBlur={()=>passwordVal()}
         placeholder="סיסמה" 
         iconType="lock"
         textAlign='right'
         secureTextEntry={true}
         style = {Styles.textInput}
       />
-         {/* <Button
-            title = "SIGN IN"
-            onPress={()=> navigation.navigate('SignInScreen')}
-            style={Styles.conTouch} 
-            /> 
-         <Text style = {Styles.text} onPress={()=> navigation.navigate('SignUpScreen')} >create an account</Text> */}
+         </View> 
          <View style = {Styles.center}>
-         <TouchableOpacity onPress={()=> navigation.navigate('SignInScreen')}
-                style={Styles.conTouch} ><Text style = {[Styles.textColor,{fontSize: 20,}]}>כניסה\LOGIN</Text></TouchableOpacity>
-            <Text style = {Styles.text} onPress={()=> navigation.navigate('SignUpScreen')} >צור חשבון</Text>
+         <TouchableOpacity onPress={handleLogin}
+                style={Styles.conTouch} ><Text style = {[Styles.textColor,{fontSize: 25,}]}>כניסה</Text></TouchableOpacity>
+         <TouchableOpacity  onPress={()=> navigation.navigate('SignUpScreen')}><Text style = {Styles.text} >צור חשבון</Text></TouchableOpacity> 
+         <TouchableOpacity  onPress={()=> navigation.navigate('ForgotPassword')}><Text style = {Styles.textFor} >שכחת סיסמא?</Text></TouchableOpacity> 
+
          </View> 
     </View> 
     
@@ -98,11 +127,15 @@ const LoginScreen = ({navigation}) => {
   )}
   export default LoginScreen;
   const Styles = StyleSheet.create({
+     
           container: {
             backgroundColor: '#009387',
             flex: 1,
             paddingTop:100,
-            padding: 20,
+            alignItems: 'center',
+          },
+          inputContainer:{
+             width:'90%',
           },
           center:{
             justifyContent: 'center',
@@ -131,6 +164,7 @@ const LoginScreen = ({navigation}) => {
             height: 85,
             width: 85,
             resizeMode: 'cover',
+            // alignItems: 'center',
             justifyContent: 'center',
             borderRadius: 5,
           },
@@ -152,17 +186,12 @@ const LoginScreen = ({navigation}) => {
             color: 'black',
             fontWeight: 'bold',
           },
-          navButton: {
-            marginTop: 15,
-          },
-          forgotButton: {
-            marginVertical: 35,
-          },
-          navButtonText: {
-            fontSize: 18,
-            fontWeight: '500',
-            color: '#2e64e5',
-            fontFamily: 'arial',
+          textFor: {
+            fontSize: 15,
+            marginTop:10,
+            marginBottom: 10,
+            color: 'black',
+            fontWeight: 'bold',
           },
 
         })

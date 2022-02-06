@@ -1,6 +1,7 @@
 
 import React, {useState} from 'react';
 import { RadioButton } from 'react-native-paper';
+import {auth} from '../FirebaseConfig';
 
 
 import { 
@@ -13,25 +14,47 @@ import {
 
 const SignUpScreen = ({navigation}) => {
     const [checked, setChecked] = React.useState('first');
-    const [user, setUser] = useState();
-    const [email, setEmail] = useState();
-    const [password, setPassword] = useState();
-    const [phone, setPhone] = useState();
+    const [user, setUser] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [phone, setPhone] = useState('');
 
     const [confirmPassword, setConfirmPassword] = useState('')
    
-    const check = () => {
+    // const check = () => {
+     
+    // }
+    const handleSignUp = () =>{
+        if(password == "" || confirmPassword == "" || user == "" || email == "" || phone == ""){
+            alert("זהו שדה חובה!")
+            return;
+        }
+        else if( password.length < 6 ){
+            alert("הסיסמא צריכה להיות בעלת 6 תווים לפחות")
+            return;
+        }
+
+        else if(password !== confirmPassword){
+            alert("הסיסמאות אינן תואמות")
+            return;
+        }
+        else{
+        auth.createUserWithEmailAndPassword(email,password)
+        .then(userCredentials => {
+            const user = userCredentials.user;
+            console.log('Register with:',user.email)
+        })
+        .catch(error=>alert(error.message))
         if(checked === 'first'){
-            // alert('שאלון לעמותה')
-            navigation.navigate('FormGetter')
+           // alert('שאלון לעסק')
+           navigation.navigate('FormGiver')
 
         }
         else{
-            // alert('שאלון לעסק')
-            navigation.navigate('FormGiver')
-
+            // alert('שאלון לעמותה')
+            navigation.navigate('FormGetter')
+        }}
         }
-    }
     return (
     <View style ={Styles.container}>
         <Text style = {Styles.textDetail}>נא הזן את הפרטים שלך</Text>
@@ -68,6 +91,8 @@ const SignUpScreen = ({navigation}) => {
         placeholder="סיסמה" 
         textAlign='right'
         secureTextEntry={true}
+        autoCapitalize="none"
+        autoCorrect={false}
         style = {Styles.textInput}
       />
        <TextInput
@@ -76,15 +101,17 @@ const SignUpScreen = ({navigation}) => {
         placeholder="אימות סיסמה" 
         textAlign='right'
         secureTextEntry={true}
+        autoCapitalize="none"
+        autoCorrect={false}
         style = {Styles.textInput}
       />
        
     <View style={{ flexDirection: 'row', justifyContent: 'center' , paddingBottom:10,}}>
         <View>
-        <Text style ={Styles.text}>תורם</Text>
+        <Text style ={Styles.text}>נתרם</Text>
             <RadioButton
             value="second"
-            name = "תורם"
+            name = "נתרם"
             status={ checked === 'second' ? 'checked' : 'unchecked' }
             onPress={() => setChecked('second')}
             />
@@ -93,10 +120,10 @@ const SignUpScreen = ({navigation}) => {
         </View>
         <View>
            
-            <Text style ={Styles.text}>נתרם</Text>
+            <Text style ={Styles.text}>תורם</Text>
             <RadioButton
             value="first"
-            title = "נתרם"
+            title = "תורם"
             status={ checked === 'first' ? 'checked' : 'unchecked' }
             onPress={() => setChecked('first')}
             
@@ -105,7 +132,7 @@ const SignUpScreen = ({navigation}) => {
         </View>
         <View style = { Styles.center}>
         <TouchableOpacity
-            onPress={()=>check()}
+            onPress={()=>{handleSignUp();}}
             // onPress = {()=> alert(checked)}
                 style={Styles.conTouch} 
             ><Text style = {[Styles.textColor,{fontSize: 20,}]}>המשך</Text></TouchableOpacity>
