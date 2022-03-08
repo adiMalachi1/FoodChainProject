@@ -1,8 +1,9 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { 
     View, 
     Text, 
     TouchableOpacity, 
+    Picker,
     StyleSheet,
     Image,
     Button
@@ -11,6 +12,8 @@ import {Icon} from 'react-native-elements'
 import {auth} from '../FirebaseConfig';
 
 const SignInScreen = ({navigation}) => {
+    const [selectedValue, setSelectedValue] = useState("java");
+
     const handleSignOut = () => {
         auth
           .signOut()
@@ -21,7 +24,12 @@ const SignInScreen = ({navigation}) => {
       }
     return (
         <View style ={Styles.container}>
-          <View style = {Styles.head}>
+          <View style = {Styles.head}>    
+            <View style = {[{ alignItems:'center',
+                            justifyContent: 'center',
+                           }]}>
+              <Text style = {Styles.text}>עמוד הבית</Text>
+            </View>
             <View style = {[{alignItems:'center',
                             justifyContent: 'center'}]}>
             <Icon
@@ -32,12 +40,15 @@ const SignInScreen = ({navigation}) => {
 
             />
             </View>
-            <View style = {[{ alignItems:'center',
-                            justifyContent: 'center',
-                           }]}>
-              <Text style = {Styles.text}>עמוד הבית</Text>
-            </View>
           </View>
+                <Picker
+                selectedValue={selectedValue}
+                style={{ height: 50, width: 150 }}
+                onValueChange={(itemValue, itemIndex) => setSelectedValue(itemValue)}
+            >
+                <Picker.Item label="Java" value="java" />
+                <Picker.Item label="JavaScript" value="js" />
+            </Picker>
             <Text>SignIn Screen</Text>
             <Text>Email: {auth.currentUser?.email}</Text>
             <TouchableOpacity
@@ -57,9 +68,9 @@ const Styles = StyleSheet.create({
         flex: 1,
         // backgroundColor: '#009387',
         backgroundColor: "#fff",
-        // margin:20,
+        margin:10,
         // alignItems: 'center',
-        // paddingTop: 100, 
+        paddingTop: 10, 
       },
       button: {
         backgroundColor: '#0782F9',

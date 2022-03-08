@@ -5,12 +5,12 @@ import {
   DefaultTheme as NavigationDefaultTheme,
   DarkTheme as NavigationDarkTheme
 } from '@react-navigation/native';
-
+import Tabs from './navigation/tabs'
 const App = () => {
   return(
     <NavigationContainer>
       <RootStackScreen>
-        
+        {/* <Tabs/> */}
       </RootStackScreen>
     </NavigationContainer>
   )

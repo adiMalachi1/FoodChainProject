@@ -6,6 +6,7 @@ import {
     TextInput,
     StyleSheet,
     Image,
+    Alert
 } from 'react-native';
 
 import {auth} from '../FirebaseConfig';
@@ -17,9 +18,22 @@ const ForgotPassword = ({navigation}) => {
     const handleForgotPassword = () => {
         auth.sendPasswordResetEmail(email)
         .then(() => {
-            alert("איפוס סיסמא נשלח לכתובת המייל שהזנת");
+           Alert.alert('', "איפוס סיסמא נשלח לכתובת המייל שהזנת",[{},{},{text:"אישור"}])
+
+            // alert("איפוס סיסמא נשלח לכתובת המייל שהזנת");
         }, (error) => {
-            alert(error.message);
+          switch(error.message) {
+            case 'Firebase: Error (auth/missing-email).':
+              Alert.alert('', "הודעת שגיאה: כתובת האמייל חסרה, אנא הזן אותה",[{},{},{text:"אישור"}])
+                  break;
+            case 'Firebase: The email address is badly formatted. (auth/invalid-email).':
+              Alert.alert('', "הודעת שגיאה: כתובת אמייל לא תקינה",[{},{},{text:"אישור"}])
+              break;
+            case 'Firebase: There is no user record corresponding to this identifier. The user may have been deleted. (auth/user-not-found).':
+              Alert.alert('', "הודעת שגיאה: כתובת זו אינה נמצאת במערכת, אנא נסה שנית",[{},{},{text:"אישור"}])
+              break;
+         }
+            console.log(error.message);
         });
     }
 

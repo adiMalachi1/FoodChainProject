@@ -6,6 +6,7 @@ import {
     TextInput,
     StyleSheet,
     Image,
+    Alert,
 } from 'react-native';
 // import AsyncStorage from '@react-native-community/async-storage'
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
@@ -16,39 +17,100 @@ const LoginScreen = ({navigation}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState();
-  
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(user => {
-      if (user) {
-        navigation.navigate("SignInScreen")
-      }
-    })
+  const [passError, setpassError] = useState();
 
-    return unsubscribe
-  }, [])
+  // useEffect(() => {
+  //   const unsubscribe = auth.onAuthStateChanged(user => {
+  //     if (user) {
+  //       navigation.navigate("SignInScreen")
+  //     }
+  //   })
+
+  //   return unsubscribe
+  // }, [])
 
  
 
   const handleLogin =()=>{
-    if(email === ""){
-      alert("אמייל הינו שדה חובה")
-      return;
+    // if(email === ""){
+      
+    //   Alert.alert('שגיאה', 'אמייל הינו שדה חובה', [
+    //     {
+          
+    //     },
+    //     {
+       
+    //     },
+    //     { text: 'אישור',
+    //     //  onPress: () => console.log('OK Pressed'),
+    //     textAlign:'center'
+    //   },
+    //   ]);
+    // //  alert("אמייל הינו שדה חובה")
+    //   return;
 
-    }
+    // }
     
-    else if(password === ""){
-      alert("סיסמא הינה שדה חובה")
-        return;
-    }
-   
-    else{
+    // else if(password === ""){
+    //   alert("סיסמא הינה שדה חובה")
+    //     return;
+    // }
+
+      if(email==="" || password ==="" || (password.length < 6)){
+
+        if(email=== ""){
+          // alert("אמייל הינו שדה חובה")
+          // navigation.navigate('LoginScreen')
+          setEmailError("אמייל הינו שדה חובה")
+          return;
+        }
+        else{
+          setEmailError("")
+          // return;
+
+        }
+        if (password === ""){
+          setpassError("סיסמא הינה שדה חובה")
+          // return;
+        }
+        else if (password.length < 6){
+          setpassError("על הסיסמא להיות בעלת 6 תווים לפחות")
+        }
+        else{
+          setpassError("")
+          // return;
+
+        }
+      }
+
+     else{
+      setpassError("")
       auth.signInWithEmailAndPassword(email,password)
       .then(userCredentials => {
         const user = userCredentials.user;
         console.log('Logged in with:',user.email)
+        navigation.navigate("SignInScreen")
+
       })
-      .catch(error=>alert(error.message))
-         return;
+        // .catch(error=>alert(error.message))
+        //  return;
+      .catch(error => {   
+        // alert(error.message)
+        // throw new Error(error.message);
+        switch(error.message) {
+          case 'Firebase: The email address is badly formatted. (auth/invalid-email).':
+                Alert.alert('', "הודעת שגיאה: כתובת אמייל לא תקינה",[{},{},{text:"אישור"}])
+                break;
+          case 'Firebase: There is no user record corresponding to this identifier. The user may have been deleted. (auth/user-not-found).':
+                Alert.alert('', "הודעת שגיאה: כתובת אמייל זו אינה קיימת, אנא צור חשבון קודם",[{},{},{text:"אישור"}])
+                break;
+          case 'Firebase: The password is invalid or the user does not have a password. (auth/wrong-password).':
+                Alert.alert('', "הודעת שגיאה: הסיסמא אינה תקינה, אנא נסה שנית",[{},{},{text:"אישור"}])
+                break;
+       }
+     })
+      // .catch(error=>alert(error.message))
+      //    return;
       // navigation.navigate('SignInScreen')
     }
   }
@@ -64,20 +126,21 @@ const LoginScreen = ({navigation}) => {
   //     navigation.navigate('LoginScreen')
   //   }
   // }
-  // const emailValidate = () =>
+  // const Validate = () =>
   //   {
   //       if(email=== ""){
-  //           alert("אמייל הינו שדה חובה")
-  //           navigation.navigate('LoginScreen')
-  //           // this.setState({emailError:"אמייל הינו שדה חובה"})
+  //           // alert("אמייל הינו שדה חובה")
+  //           // navigation.navigate('LoginScreen')
+  //           setEmailError("אמייל הינו שדה חובה")
   //       }
   //       else{
   //           setEmailError("")
-  //           navigation.navigate('LoginScreen')
+  //           // navigation.navigate('LoginScreen')
 
   //           // this.setState({emailError:""})
 
   //       }
+  //       // if 
   //   } 
   return(
     <View style={Styles.container}>
@@ -102,7 +165,8 @@ const LoginScreen = ({navigation}) => {
         autoCorrect={false}
         style = {Styles.textInput}
       />
-        {/* <Text style={{color:'red'}} >{emailError}</Text> */}
+       {/* <Text style={Styles.errorMsg}>Username must be 4 characters long.</Text> */}
+        <Text style={Styles.errorMsg} >{emailError}</Text>
        <TextInput
         value={password}
         onChangeText={(password) => setPassword(password)}
@@ -113,6 +177,8 @@ const LoginScreen = ({navigation}) => {
         secureTextEntry={true}
         style = {Styles.textInput}
       />
+         <Text style={Styles.errorMsg} >{passError}</Text>
+
          </View> 
          <View style = {Styles.center}>
          <TouchableOpacity onPress={handleLogin}
@@ -147,7 +213,7 @@ const LoginScreen = ({navigation}) => {
             borderColor: 'gray',
             backgroundColor: 'white',
             padding:10,
-            marginBottom:20,
+            marginBottom:10,
             borderRadius:5,
           },
           conTouch :{
@@ -193,5 +259,8 @@ const LoginScreen = ({navigation}) => {
             color: 'black',
             fontWeight: 'bold',
           },
-
+          errorMsg: {
+            color: '#FF0000',
+            fontSize: 14,
+        },
         })
