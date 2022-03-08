@@ -5,15 +5,125 @@ import {
     StyleSheet,
     Image,
     Button,
+    Switch,
     TextInput,
 } from 'react-native';
 import React, { useState, useEffect } from 'react'
 import {auth, db} from '../FirebaseConfig';
-
+import DateTimePicker from '@react-native-community/datetimepicker';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { ScrollView } from 'react-native-gesture-handler';
- 
+import * as Location from 'expo-location';
+
 const FormGetter = ({navigation}) => {
+
+  const [date, setDate] = useState(new Date());
+  const [mode, setMode] = useState('date');
+  const [show, setShow] = useState(false);
+  const [time, setTime] = useState('');
+  const [location, setLocation] = useState('');
+
+
+  const onChange = (event, selectedDate) => {
+    const currentDate = selectedDate || date;
+    setShow(Platform.OS === 'ios');
+    setDate(currentDate);
+    let tempDate = new Date(currentDate)
+    let fDate = 'תאריך: ' + tempDate.getDate() + '/' + (tempDate.getMonth()+1)+'/'+ tempDate.getFullYear(); 
+    let fTime;
+    if( tempDate.getMinutes() == 0 && tempDate.getHours() == 0 ){
+      fTime = 'שעה: 0'+ tempDate.getHours() + ':0' + tempDate.getMinutes();
+    }
+    else if(tempDate.getMinutes() > 0 && tempDate.getMinutes() < 10 ){
+      if(tempDate.getHours() == 0){
+        fTime = 'שעה: 0'+ tempDate.getHours() + ':0' + tempDate.getMinutes();
+
+      }
+      if( tempDate.getHours() > 9 && tempDate.getHours() < 25) {
+        fTime = 'שעה: '+ tempDate.getHours() + ':0' + tempDate.getMinutes();
+      }
+      else if(tempDate.getHours()>0 && tempDate.getHours() < 10){
+        fTime = 'שעה: ' + '0'+ tempDate.getHours() + ':0' + tempDate.getMinutes();
+      }
+    }
+    else{
+      if(tempDate.getHours() == 0){
+        fTime = 'שעה: 0'+ tempDate.getHours() + ':' + tempDate.getMinutes();
+      }
+      else if( tempDate.getHours() > 9 && tempDate.getHours() < 25) {
+        if(tempDate.getMinutes() > 9)
+         fTime = 'שעה: ' + tempDate.getHours() + ':' + tempDate.getMinutes();
+        else {
+          fTime = 'שעה: ' + tempDate.getHours() + ':0' + tempDate.getMinutes();
+
+        }
+      }
+      else if ( tempDate.getHours() > 1 && tempDate.getHours() < 10) {  
+        if(tempDate.getMinutes < 10)
+        fTime = 'שעה: 0' + tempDate.getHours() + ':' + tempDate.getMinutes();
+        else if (tempDate.getMinutes() == 0){
+         
+          alert("yhnj")
+          fTime = 'שעה: 0' + tempDate.getHours() + ':0' + tempDate.getMinutes();
+        }
+        else{
+          // console.log(tempDate.getMinutes())
+                  fTime = 'שעה: 0' + tempDate.getHours() + ':' + tempDate.getMinutes();
+
+        }
+      }
+      else{
+               fTime = 'שעה: ' + tempDate.getHours() + ':' + tempDate.getMinutes();
+
+      }
+    }
+  
+    setTime(fDate +' , '+ fTime)
+    console.log(fDate + ' (' + fTime + ')')
+    };
+ 
+  const showMode = (currentMode) => {
+    setShow(true);
+    setMode(currentMode);
+  };
+
+  const [locationLat, setLocationLat] = useState(null);
+  const [locationLon, setLocationLon] = useState(null);
+
+  const [errorMsg, setErrorMsg] = useState(null);
+
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        setErrorMsg('Permission to access location was denied');
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      let address = await Location.reverseGeocodeAsync(location.coords)
+      console.log(location.coords.latitude,location.coords.longitude)
+      // setLocation(location.coords.latitude,  location.coords.longitude);
+      setLocationLat(location.coords.latitude)
+      setLocationLon(location.coords.longitude)
+      
+    })();
+  }, []);
+  const [isEnabled, setIsEnabled] = useState(false);
+  const toggleSwitch = () => {
+    setIsEnabled(previousState => !previousState)
+    if (!isEnabled){
+      alert("true")
+      setLocation("המיקום הנוכחי הוא: " + locationLat + ','+ locationLon)
+      
+      // setShowComponent(true)
+    }
+     else{    
+      // alert("false")
+      setLocation("")
+      // setShowComponent(false)
+    }
+    };
   // const contactsDbRef = firebase.app().database().ref('contacts/');
   // console.log(timeStamp+"/"+insertKey);
   // contactsDbRef
@@ -36,6 +146,8 @@ const FormGetter = ({navigation}) => {
   //             }
   //         });
   const [desription, setDescription] =  useState('');
+  const [other, setOther] =  useState('');
+  const [showInput, setShowInput] = useState(false);
   const [openCato, setOpenCato] = useState(false);
   const [valueCa, setValueCa] = useState('');
   const [itemCato, setItemCato] = useState([
@@ -56,7 +168,13 @@ const FormGetter = ({navigation}) => {
     {label: 'העצמת מיעוטים', value: 'העצמת מיעוטים'},
     {label: 'אחר', value: 'אחר'}
   ]);
+  // const onChangeValue = () => {
+   
+  //     alert(value)
 
+  //   }
+    
+  //   };
   const [openTags, setOpenTags] = useState(false);
   const [valueTags, setValueTags] = useState([]);
   const [itemTags, setItemTags] = useState([
@@ -97,6 +215,22 @@ const [itemTypeFood, setItemTypeFood] = useState([
   {label: 'הכל', value: 'הכל'}
 
 ]);
+const [openTimePick, setOpenTimePick] = useState(false);
+const [valueTimePick, setValueTimePick] = useState([]);
+const [itemTimePick, setItemTimePick] = useState([
+  {label: 'ראשון', value: 'ראשון'},
+  {label: 'שני', value: 'שני'},
+  {label: 'שלישי', value: 'שלישי'},
+  {label: 'רביעי', value: 'רביעי'},
+  {label: 'חמישי', value: 'חמישי'},
+  {label: 'שישי', value: 'שישי'},
+  {label: 'שבת', value: 'שבת'},
+  {label: 'חגים יהודיים', value: 'חגים יהודיים'},
+  {label: 'חגים נוצריים', value: 'חגים נוצריים'},
+  {label: 'חגים מוסלמים', value: 'חגים מוסלמים'},
+  {label: 'מידי פעם', value: 'מידי פעם'}
+
+]);
 const handleSignUpCon = () =>{
   if (auth.currentUser) {
     const userid = auth.currentUser.uid;
@@ -109,10 +243,10 @@ const handleSignUpCon = () =>{
             tags: valueTags,
             status : valueStatus,
             typeFood: valueTypeFood,
-            // email: email,
-            // phone: phone, 
-            // password: password,
-            // type:checked,
+            other: other,
+            Time : time,
+            location: location,
+         
             
        }) .catch((error) => {
         alert(error.message);
@@ -121,24 +255,7 @@ const handleSignUpCon = () =>{
   }
 }
     return (
-        // <View style ={Styles.container}>
-        //     <Text style= {Styles.text}>שלום עמותה יקרה, שמחים שהצטרפת אלינו! אנא מלאי את השאלון והפרופיל שלך.</Text>
-        //     {/* <Button
-        //         title = "Clicked Me!"
-        //         onPress = {()=>alert("button Clicked!")}
-        //     /> */}
-        //     <View
-        //         style = {{
-        //             backgroundColor:'white',
-        //             width:300,
-        //             height:380,
-        //             padding: 20,
-        //             paddingTop:50,
-        //             borderRadius:5,
-
-        //         }}
-        //     />
-        // </View>
+      
         <ScrollView>
     <View style={{ paddingTop:20, margin:20,}}>
         <Text  style={{marginVertical:10}}>תיאור קצר</Text>
@@ -172,8 +289,36 @@ const handleSignUpCon = () =>{
           nestedScrollEnabled: true,
       }}
         closeAfterSelecting={true}
+        onChangeValue={(item) => {
+          console.log("selected value",item);
+          if (item === "אחר"){  //you writes if condition here, it's an example of code below
+            // alert("yes")  //showing input
+            setShowInput(true)
+          }
+          else{
+            //need set to false if not "others", because user can change select a lot of times
+            setShowInput(false)
+            }
+        }}
         ></DropDownPicker>
         </View>
+        <TextInput 
+        value = {other}  
+        placeholder="אחר"
+        onChangeText={(other) => setOther(other)}
+        style = {[Styles.textInput,{marginTop:10,height:45,display: showInput ? "flex": "none"}]}
+        // multiline={true}
+        selectionColor={"black"}
+        autoFocus ={true}
+        activeUnderlineColor="white"
+        underlineColor='white'/>
+        {/* // autoFocus={true}
+        // activeUnderlineColor="white"
+        // underlineColor='white'
+        // multiline={true}
+        // style = {[Styles.textInput,{height:40,marginTop:10,textAlign:'right',},{display: showInput ? "flex": "none"}]}
+        // selectionColor={"black"} /> */}
+
     <Text  style={{marginVertical:20}}>תגים</Text>
     <View>
       <DropDownPicker 
@@ -247,8 +392,8 @@ const handleSignUpCon = () =>{
     }}
     // onChangeItem={itemsI => setValues(itemsI.value)}
     placeholder= {'אנא בחר את סוג האוכל המתאים'}
-    zIndex={2000}
-    zIndexInverse={2000}
+    zIndex={3000}
+    zIndexInverse={1000}
   
  ></DropDownPicker>
   <Text  style={{ marginVertical:20}}>כמה אנשים מאכילים באופן קבוע?</Text>
@@ -265,27 +410,64 @@ const handleSignUpCon = () =>{
         selectionColor={"black"}
 
       />
-      <Text  style={{ marginVertical:20}}>הזמן הכי טוב לאיסוף</Text>
-      <TextInput 
-        style = {[Styles.textInput,{height:45,},]}
-        placeholder="אנא בחר זמן מתאים"
-      ></TextInput>
+       <Text  style={{ marginVertical:20}}>הזמן הכי טוב לאיסוף</Text>
+
+<View style={{ flexDirection: "row", justifyContent:'center',margin:10,}}>
+  <TouchableOpacity style={Styles.conTime} onPress={()=> showMode('date')}><Text style = {{color:'#009387',fontSize: 17}}>בחר תאריך</Text></TouchableOpacity>
+
+  
+  <TouchableOpacity style={Styles.conTime} onPress={()=> showMode('time')}><Text style = {{color:'#009387',fontSize: 17}}>בחר זמן</Text></TouchableOpacity> 
+    {show && (
+      <DateTimePicker
+      testID="dateTimePicker"
+      value={date}
+      mode={mode}
+        is24Hour={true}
+        // format="DD-MM-YYYY"
+        
+        display="default"
+        onChange={onChange}
+        />
+        )}
+  </View>
+
+ <Text>{time}</Text>
+
+ <Text  style={{marginTop:20}}>מיקום</Text>
+    <View style = {{flexDirection:'row',  justifyContent:'flex-start',}}>
+      <Text style = {{marginVertical:20,}}>
+        השתמש במיקום הנוכחי שלי:  </Text>
+         <Switch
+          trackColor={{ false: "#767577", true: "#78CECC" }}
+          thumbColor={isEnabled ? "#009387" : "#f4f3f4"}
+          ios_backgroundColor="#3e3e3e"
+          onValueChange={()=> toggleSwitch()}
+          value={isEnabled}
+          
+          // style = {{flexDirection:"row"}}
+      />
+
+    </View>
+    <Text>
+     {location}
+     </Text>
       <Text  style={{ marginVertical:20}}>יום איסוף</Text>
       < DropDownPicker
-     open={openCato}
-      value={valueCa}
-      items={itemCato}
-      setOpen={setOpenCato}
-      setValue={setValueCa}
-      // setItems={setItemCato}
-      zIndex={3000}
-      zIndexInverse={1000}
-      placeholder= {'אנא בחר יום איסוף'} 
-      listMode="SCROLLVIEW"
-        scrollViewProps={{
-          nestedScrollEnabled: true,
+        open={openTimePick}
+        value={valueTimePick}
+        items={itemTimePick}
+        setOpen={setOpenTimePick}
+        setValue={setValueTimePick}
+        setItems={setItemTimePick} 
+        zIndex={3000}
+        zIndexInverse={1000}
+        multiple = {true}
+        multipleText="תודה שבחרת"
+        placeholder= {'אנא בחר יום איסוף'} 
+        listMode="SCROLLVIEW"
+          scrollViewProps={{
+            nestedScrollEnabled: true,
       }}
-        closeAfterSelecting={true}
    > </DropDownPicker>
       <View style = {{ alignItems:'center'}}>
     <TouchableOpacity   onPress={()=>{handleSignUpCon();}}
@@ -305,6 +487,17 @@ const Styles = StyleSheet.create({
         fontWeight: 'bold',
         color: 'white',
       },
+      conTime :{
+        borderWidth:2,
+        borderColor:'#009387',
+        alignItems:'center',
+        justifyContent:'center',
+        width:120,
+        height:50,
+        // backgroundColor:'#009387',
+        borderRadius:10,
+        margin:10,
+        },
       conTouch :{
         borderWidth:2,
         borderColor:'#fff',
@@ -314,7 +507,7 @@ const Styles = StyleSheet.create({
         height:50,
         backgroundColor:'#009387',
         borderRadius:10,
-        // margin:80,
+        margin:20,
         },
         textInput:{
           borderWidth:1,

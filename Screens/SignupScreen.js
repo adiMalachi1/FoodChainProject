@@ -58,7 +58,7 @@ const SignUpScreen = ({navigation}) => {
 
         if(user == "" ||  email== "" || phone == "" || password == "" || confirmPassword == "" ){
             if(user == ""){
-                 Alert.alert('', "הודעת שגיאה: שם משתמש הינו שדה חובה, אנא הזן אותו",[{},{},{text:"אישור"}])
+                 Alert.alert('', "הודעת שגיאה: שם ארגון הינו שדה חובה, אנא הזן אותו",[{},{},{text:"אישור"}])
                  return;
             }
             if(email == ""){

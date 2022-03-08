@@ -20,13 +20,12 @@ import * as ImagePicker from 'expo-image-picker';
 
 const FormGiver = ({navigation}) => {
   const [desription, setDescription] =  useState('');
-  const [amountKg, setAmountKg] =  useState([]);
+  const [amountKg, setAmountKg] =  useState('');
   const [date, setDate] = useState(new Date());
   const [mode, setMode] = useState('date');
   const [show, setShow] = useState(false);
-  const [text, setText] = useState('');
-  const [textP, setTextP] = useState('');
-
+  const [time, setTime] = useState('');
+  const [location, setLocation] = useState('');
   // const [image, setImage] = useState(null);
   // const pickImage = async () => {
   //   // No permissions request is necessary for launching the image library
@@ -52,7 +51,6 @@ const FormGiver = ({navigation}) => {
     let fTime;
     if( tempDate.getMinutes() == 0 && tempDate.getHours() == 0 ){
       fTime = 'שעה: 0'+ tempDate.getHours() + ':0' + tempDate.getMinutes();
-          // alert("jj")
     }
     else if(tempDate.getMinutes() > 0 && tempDate.getMinutes() < 10 ){
       if(tempDate.getHours() == 0){
@@ -60,24 +58,19 @@ const FormGiver = ({navigation}) => {
 
       }
       if( tempDate.getHours() > 9 && tempDate.getHours() < 25) {
-        // alert("hu")
         fTime = 'שעה: '+ tempDate.getHours() + ':0' + tempDate.getMinutes();
       }
       else if(tempDate.getHours()>0 && tempDate.getHours() < 10){
         fTime = 'שעה: ' + '0'+ tempDate.getHours() + ':0' + tempDate.getMinutes();
-          // alert("yes")
       }
     }
     else{
-      // alert("1")
       if(tempDate.getHours() == 0){
-        // alert("2")
         fTime = 'שעה: 0'+ tempDate.getHours() + ':' + tempDate.getMinutes();
       }
       else if( tempDate.getHours() > 9 && tempDate.getHours() < 25) {
         if(tempDate.getMinutes() > 9)
          fTime = 'שעה: ' + tempDate.getHours() + ':' + tempDate.getMinutes();
-        // alert("k")
         else {
           fTime = 'שעה: ' + tempDate.getHours() + ':0' + tempDate.getMinutes();
 
@@ -93,7 +86,6 @@ const FormGiver = ({navigation}) => {
         }
         else{
           // console.log(tempDate.getMinutes())
-          // alert("jtj")
                   fTime = 'שעה: 0' + tempDate.getHours() + ':' + tempDate.getMinutes();
 
         }
@@ -104,7 +96,7 @@ const FormGiver = ({navigation}) => {
       }
     }
   
-    setText(fDate +' , '+ fTime)
+    setTime(fDate +' , '+ fTime)
     console.log(fDate + ' (' + fTime + ')')
     };
  
@@ -173,13 +165,13 @@ const FormGiver = ({navigation}) => {
     setIsEnabled(previousState => !previousState)
     if (!isEnabled){
       alert("true")
-      setTextP("המיקום הנוכחי הוא: " + locationLat + ','+ locationLon)
+      setLocation("המיקום הנוכחי הוא: " + locationLat + ','+ locationLon)
       
       // setShowComponent(true)
     }
      else{    
       // alert("false")
-      setTextP("")
+      setLocation("")
       // setShowComponent(false)
     }
     };
@@ -205,7 +197,7 @@ const FormGiver = ({navigation}) => {
   const [valueTags, setValueTags] = useState([]);
   const [itemTags, setItemTags] = useState([
     {label: 'כשרות רגילה', value: 'כשרות רגילה'},
-    {label: 'כשרות בד"ץ', value: 'כשרות בד"ץ'},
+    {label: 'כשרות בד"ץ', value: 'כשרות בדץ'},
     {label: 'טבעוני', value: 'טבעוני'},
     {label: 'חלבי', value: 'חלבי'},
     {label: 'בשרי', value: 'בשרי'},
@@ -288,8 +280,8 @@ const handleSignUpCon = () =>{
             typeFood: valueTypeFood,
             timePick: valueTimePick,
             when: valueWhen,
-            location: textP,
-            Time : text,
+            location: location,
+            Time : time,
             amount : amountKg,
             // email: email,
             // phone: phone, 
@@ -501,7 +493,7 @@ const handleSignUpCon = () =>{
             )}
       </View>
 
-            <Text>{text}</Text>
+            <Text>{time}</Text>
 
       <Text  style={{marginVertical:20}}>מיקום</Text>
       <View style = {{}}>
@@ -533,7 +525,7 @@ const handleSignUpCon = () =>{
 
     </View>
     <Text>
-     {textP}
+     {location}
     </Text>
       {/* <Text>
       המיקום הנוכחי הוא: {locationLat},{locationLon}
