@@ -8,14 +8,14 @@ import {
     Alert,
     Pressable,
     TextInput,
+    ColorPropType,
     
 } from 'react-native';
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import {createUserWithEmailAndPassword } from "firebase/auth";
 import {auth,db} from '../FirebaseConfig';
-// import {TextInput, } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { color } from '../utils/index';
+import { color } from '../utils';
 const LoginScreen = ({navigation}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -183,7 +183,7 @@ const LoginScreen = ({navigation}) => {
          <View style = {Styles.center}>
          <TouchableOpacity onPress={handleLogin}
                 style={Styles.conTouch} ><Text style = {[Styles.textColor,{fontSize: 25,}]}>כניסה</Text></TouchableOpacity>
-         <TouchableOpacity  onPress={()=> navigation.navigate('SignUpScreen')}><Text style = {Styles.text} >צור חשבון</Text></TouchableOpacity> 
+         <TouchableOpacity  onPress={()=> navigation.navigate('SignUpScreen')}><Text style = {[Styles.textFor,{fontSize: 18,}]} >צור חשבון</Text></TouchableOpacity> 
          <TouchableOpacity  onPress={()=> navigation.navigate('ForgotPassword')}><Text style = {Styles.textFor} >שכחת סיסמא?</Text></TouchableOpacity> 
 
          </View> 
@@ -195,7 +195,7 @@ const LoginScreen = ({navigation}) => {
   const Styles = StyleSheet.create({
      
           container: {
-            backgroundColor: '#009387',
+            backgroundColor: color.TURQUOISE,
             flex: 1,
             paddingTop:100,
             alignItems: 'center',
@@ -209,31 +209,33 @@ const LoginScreen = ({navigation}) => {
             padding:20,
           },
           textInput:{
-            backgroundColor: 'white',
+            backgroundColor: color.WHITE,
             padding:10,
             // marginBottom:10,
             textAlign:'right',
             borderRadius:5,
             width:'90%',
+            
            
           },
        
           inputContainer2: {
-            backgroundColor: 'white',
+            backgroundColor: color.WHITE,
             borderRadius: 8,
             flexDirection: 'row',
             alignItems: 'center',
             borderWidth: 4,
-            borderColor: '#d7d7d7'
+            borderColor: '#d7d7d7',
           },
           conTouch :{
             borderWidth:2,
-            borderColor:'#fff',
+            color: color.WHITE,
             alignItems:'center',
             justifyContent:'center',
+            borderColor:color.WHITE,
             width:150,
             height:50,
-            backgroundColor:'#009387',
+            backgroundColor:color.TURQUOISE,
             borderRadius:10,
             },
           logo: {
@@ -246,7 +248,7 @@ const LoginScreen = ({navigation}) => {
           },
           textheader:{
             fontWeight: 'bold',
-            color: 'white',
+            color: color.WHITE,
             fontSize: 35,
             paddingBottom:40,
             textAlign:'center'
@@ -256,18 +258,18 @@ const LoginScreen = ({navigation}) => {
             color: color.WHITE,
             
           },
-          text: {
-            fontSize: 18,
-            marginTop:10,
-            marginBottom: 10,
-            color: 'black',
-            fontWeight: 'bold',
-          },
+          // text: {
+          //   fontSize: 18,
+          //   marginTop:10,
+          //   marginBottom: 10,
+          //   color: color.BLACK,
+          //   fontWeight: 'bold',
+          // },
           textFor: {
             fontSize: 15,
             marginTop:10,
             marginBottom: 10,
-            color: 'black',
+            color: color.BLACK,
             fontWeight: 'bold',
           },
           errorMsg: {

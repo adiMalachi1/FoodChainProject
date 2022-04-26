@@ -6,6 +6,7 @@ import {
     StyleSheet,
     Image,
 } from 'react-native';
+import { color } from '../utils';
 
 const HomeScreen = ({navigation}) => {
     return (
@@ -20,10 +21,6 @@ const HomeScreen = ({navigation}) => {
                 <Text style={Styles.textSecondHeader}>לאפליקצית FoodChain!</Text>
 
             </View>
-            {/* <View> 
-            <Text style ={Styles.textheader}>Welcome!</Text>
-            </View>    */}
-
             <TouchableOpacity onPress={()=> navigation.navigate('LoginScreen')}
                 style={Styles.conTouch} 
             ><Text style = {[Styles.textColor,{fontSize: 20,}]}>המשך</Text></TouchableOpacity>
@@ -36,17 +33,17 @@ export default HomeScreen;
 const Styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#009387',
+        backgroundColor: color.TURQUOISE,
         alignItems: 'center',
         paddingTop: 100, 
       },
       textColor:{
         fontWeight: 'bold',
-        color: 'white',
+        color: color.WHITE,
       },
       textheader:{
         fontWeight: 'bold',
-        color: 'white',
+        color: color.WHITE,
         fontSize: 40,
         paddingBottom:200,
       },
@@ -59,7 +56,7 @@ const Styles = StyleSheet.create({
       },
       textSecondHeader:{
         fontWeight: 'bold',
-        color: 'white',
+        color: color.WHITE,
         fontSize: 30,
         paddingBottom:10,
         // paddingTop:20,
@@ -74,12 +71,12 @@ const Styles = StyleSheet.create({
       },
       conTouch :{
         borderWidth:2,
-        borderColor:'#fff',
+        borderColor:color.WHITE,
         alignItems:'center',
         justifyContent:'center',
         width:150,
         height:50,
-        backgroundColor:'#009387',
+        backgroundColor: color.TURQUOISE,
         borderRadius:10,
         },
    
