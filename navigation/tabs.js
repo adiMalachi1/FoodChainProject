@@ -1,62 +1,79 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
 import Dashboard from '../Screens/DashboardPage';
 import HomePage from '../Screens/HomePage';
 import GettersPage from '../Screens/GettersPage';
+import React from 'react';
+import { View, Text,StyleSheet, Button, } from 'react-native';
+import {Icon} from 'react-native-elements'
+
+import { Directions, TouchableOpacity } from 'react-native-gesture-handler';
+import {auth} from '../FirebaseConfig';
 
 const Tab = createBottomTabNavigator();
 
-const Tabs = () =>
+const Tabs = ({navigation} ) =>
 {
+  const handleSignOut = () => {
+    auth
+      .signOut()
+      .then(() => {
+        navigation.navigate("HomeScreen")
+      })
+      .catch(error => alert(error.message))
+  }
     return(
-        // <NavigationContainer  independent={true}>
+          // <NavigationContainer>
             <Tab.Navigator 
             
-            initialRouteName={"בית"}
-            screenOptions={({ route }) => ({
+            initialRouteName={"איזור אישי"}
           
-                backgroundColor:'blue',
+            screenOptions={({ route }) => ({
+              
+           
+            
+            headerTitle: route.name,
+              headerRight: () => (
+                
+                <TouchableOpacity  onPress={handleSignOut}>
+                  <Icon
+                  type = "material-community"
+                  margin = {10}
+                  name = "menu"
+                  color = "#009387"
+                  size = {30}
+              
+                    />
+                </TouchableOpacity>
+              ),
+                
+                // headerTitleAlign:'left',
+                headerStyle: {
+                  backgroundColor: 'blue',
+                  // height:80,
+                },
+                headerTintColor: '#fff',  
+                headerTitleStyle: {
+                  fontWeight: 'bold',
+                  // height:20,
+                  // margin:10,
+                },
+                tabBarHideOnKeyboard: true,
                 tabBarActiveTintColor: "green",
                 tabBarInactiveTintColor: "gray",
-                // tabBarLabelPosition: 'beside-icon',
-                // tabBarActiveBackgroundColor:"blue",
-                // tabBarStyle:{
-                //         borderRadius:50,
-                //         backgroundColor:'yellow',
-                // },
                 tabBarLabelStyle: {
-                //   paddingBottom: 5,
                   fontSize: 10
                 },
                
-                // activeTintColor: 'green',
-                // inactiveTintColor: 'gray',
-                // labelStyle: { paddingBottom: 5, fontSize: 10 },
-                // borderRadius:15,
-                // backgroundColor: 'blue',
-                // tabBarShowLabel: false,
-                // tabBarHideOnKeyboard: true,
-                // style: {
-                //     borderRadius: 15,
-                //     height: 90,
-                // },
-                
-                
-                // tabBarStyle:{
-                //     borderRadius: 15,
-                //     backgroundColor:'red',
-
-                // //     height: 90,
-                //   },
                   tabBarItemStyle:{
                     backgroundColor:'#f1f1f1',
                     margin:3,
                     borderRadius:10 },
+                    
                 tabBarIcon: ({ focused, color, size }) => {
                   let iconName;
-      
+
                   if (route.name === "בית") {
                     iconName = focused ? 'home' : 'home-outline';
       
@@ -71,19 +88,25 @@ const Tabs = () =>
                   return <Ionicons name={iconName} size={size} color={color} />;
                 },
               })}>
-            {/* // tabBarOptions={{ */}
-            {/* //     activeTintColor: 'green',
-            //     inactiveTintColor: 'gray',
-            //     labelStyle: { fontSize: 10, },
-            //     // style: { padding: 10, height: 70, }
-            //   }}> */}
-                 <Tab.Screen name="בית" component={HomePage} />
+        
+                 <Tab.Screen name="בית" component={HomePage}  />
                  <Tab.Screen name="נתרמים" component={GettersPage} />
                  <Tab.Screen name="איזור אישי" component={Dashboard} />
             </Tab.Navigator>
-        // </NavigationContainer>
+            // {/* </NavigationContainer> */}
+
     );
 }  
 
 
 export default Tabs;
+const Styles = StyleSheet.create({
+  container: {
+      flex: 1,
+      // backgroundColor: '#009387',
+      backgroundColor: "#fff",
+      margin:10,
+      // alignItems: 'center',
+      paddingTop: 10, 
+    },
+  })
