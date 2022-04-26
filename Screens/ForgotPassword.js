@@ -18,19 +18,26 @@ const ForgotPassword = ({navigation}) => {
     const handleForgotPassword = () => {
         auth.sendPasswordResetEmail(email)
         .then(() => {
-           Alert.alert('', "איפוס סיסמא נשלח לכתובת המייל שהזנת",[{},{},{text:"אישור"}])
+           Alert.alert('', "איפוס סיסמא נשלח לכתובת המייל שהזנת",[,,{text:"אישור"}])
 
             // alert("איפוס סיסמא נשלח לכתובת המייל שהזנת");
         }, (error) => {
+          alert(error.message)
           switch(error.message) {
             case 'Firebase: Error (auth/missing-email).':
-              Alert.alert('', "הודעת שגיאה: כתובת האמייל חסרה, אנא הזן אותה",[{},{},{text:"אישור"}])
+              Alert.alert('', "הודעת שגיאה: כתובת האמייל חסרה, אנא הזן אותה",[,,{text:"אישור"}])
                   break;
             case 'Firebase: The email address is badly formatted. (auth/invalid-email).':
-              Alert.alert('', "הודעת שגיאה: כתובת אמייל לא תקינה",[{},{},{text:"אישור"}])
+              Alert.alert('', "הודעת שגיאה: כתובת אמייל לא תקינה",[,,{text:"אישור"}])
+              break;
+            case 'The email address is badly formatted.':
+              Alert.alert('', "הודעת שגיאה: כתובת אמייל לא תקינה",[,,{text:"אישור"}])
               break;
             case 'Firebase: There is no user record corresponding to this identifier. The user may have been deleted. (auth/user-not-found).':
-              Alert.alert('', "הודעת שגיאה: כתובת זו אינה נמצאת במערכת, אנא נסה שנית",[{},{},{text:"אישור"}])
+              Alert.alert('', "הודעת שגיאה: כתובת זו אינה נמצאת במערכת, אנא נסה שנית",[,,{text:"אישור"}])
+              break;
+            case 'There is no user record corresponding to this identifier. The user may have been deleted.':
+              Alert.alert('', "הודעת שגיאה: כתובת זו אינה נמצאת במערכת, אנא נסה שנית",[,,{text:"אישור"}])
               break;
          }
             console.log(error.message);
@@ -83,6 +90,7 @@ return(
         marginBottom:20,
         borderRadius:5,
         width: '80%',
+        // writingDirection:'rtl'
       },
       text:{
         textAlign:'center',
