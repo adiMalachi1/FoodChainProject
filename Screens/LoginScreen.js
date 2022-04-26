@@ -3,66 +3,48 @@ import {
     View, 
     Text, 
     TouchableOpacity,
-    TextInput,
     StyleSheet,
     Image,
     Alert,
+    Pressable,
+    TextInput,
+    
 } from 'react-native';
-// import AsyncStorage from '@react-native-community/async-storage'
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import {createUserWithEmailAndPassword } from "firebase/auth";
-import {auth} from '../FirebaseConfig';
-
+import {auth,db} from '../FirebaseConfig';
+// import {TextInput, } from 'react-native-paper';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { color } from '../utils/index';
 const LoginScreen = ({navigation}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState();
   const [passError, setpassError] = useState();
+  // const [passwordVisible, setPasswordVisible] = useState(true);
+  const [passwordVisibility, setPasswordVisibility] = useState(true);
+  const [rightIcon, setRightIcon] = useState('eye-off');
 
-  // useEffect(() => {
-  //   const unsubscribe = auth.onAuthStateChanged(user => {
-  //     if (user) {
-  //       navigation.navigate("SignInScreen")
-  //     }
-  //   })
 
-  //   return unsubscribe
-  // }, [])
+  const handlePasswordVisibility = () => {
+    if (rightIcon === 'eye') {
+      setRightIcon('eye-off');
+      setPasswordVisibility(!passwordVisibility);
+    } else if (rightIcon === 'eye-off') {
+      setRightIcon('eye');
+      setPasswordVisibility(!passwordVisibility);
+    }
+  };
 
- 
 
   const handleLogin =()=>{
-    // if(email === ""){
-      
-    //   Alert.alert('שגיאה', 'אמייל הינו שדה חובה', [
-    //     {
-          
-    //     },
-    //     {
-       
-    //     },
-    //     { text: 'אישור',
-    //     //  onPress: () => console.log('OK Pressed'),
-    //     textAlign:'center'
-    //   },
-    //   ]);
-    // //  alert("אמייל הינו שדה חובה")
-    //   return;
-
-    // }
-    
-    // else if(password === ""){
-    //   alert("סיסמא הינה שדה חובה")
-    //     return;
-    // }
-
+   
       if(email==="" || password ==="" || (password.length < 6)){
 
         if(email=== ""){
-          // alert("אמייל הינו שדה חובה")
-          // navigation.navigate('LoginScreen')
-          setEmailError("אמייל הינו שדה חובה")
-          return;
+          Alert.alert('', "הודעת שגיאה: אמייל הינו שדה חובה",[,,{text:"אישור"}])
+
+          // return;
         }
         else{
           setEmailError("")
@@ -70,15 +52,14 @@ const LoginScreen = ({navigation}) => {
 
         }
         if (password === ""){
-          setpassError("סיסמא הינה שדה חובה")
-          // return;
+          Alert.alert('', "הודעת שגיאה: סיסמה הינה שדה חובה",[,,{text:"אישור"}])
+
         }
         else if (password.length < 6){
-          setpassError("על הסיסמא להיות בעלת 6 תווים לפחות")
+          Alert.alert('', "הודעת שגיאה: על הסיסמא להיות בעלת 6 תווים לפחות",[,,{text:"אישור"}])
         }
         else{
           setpassError("")
-          // return;
 
         }
       }
@@ -87,61 +68,64 @@ const LoginScreen = ({navigation}) => {
       setpassError("")
       auth.signInWithEmailAndPassword(email,password)
       .then(userCredentials => {
+        var type
         const user = userCredentials.user;
+        const userid = userCredentials.user.uid;
+        db.ref(`users/`+userid).on('value', function (snapshot) {
+          type = (snapshot.val().type)
+          if (type === 'giver'){
+            navigation.navigate("Tabs")
+          } 
+          else{
+            navigation.navigate("TabsGetter")
+  
+          }
+        })
+
+  
         console.log('Logged in with:',user.email)
-        navigation.navigate("SignInScreen")
+       
 
       })
         // .catch(error=>alert(error.message))
         //  return;
       .catch(error => {   
-        // alert(error.message)
+        console.log(error)
+        alert(error.message)
         // throw new Error(error.message);
         switch(error.message) {
+          case "Can't find variable: db":
+            Alert.alert('', "הודעת שגיאה",[,,{text:"אישור"}])
+            break;
           case 'Firebase: The email address is badly formatted. (auth/invalid-email).':
-                Alert.alert('', "הודעת שגיאה: כתובת אמייל לא תקינה",[{},{},{text:"אישור"}])
+                Alert.alert('', "הודעת שגיאה: כתובת אמייל לא תקינה",[,,{text:"אישור"}])
                 break;
+          case 'The email address is badly formatted.':
+            Alert.alert('', "הודעת שגיאה: כתובת אמייל לא תקינה",[,,{text:"אישור"}])
+            break;
           case 'Firebase: There is no user record corresponding to this identifier. The user may have been deleted. (auth/user-not-found).':
-                Alert.alert('', "הודעת שגיאה: כתובת אמייל זו אינה קיימת, אנא צור חשבון קודם",[{},{},{text:"אישור"}])
+                Alert.alert('', "הודעת שגיאה: כתובת אמייל זו אינה קיימת, אנא צור חשבון קודם",[,,{text:"אישור"}])
                 break;
+          case 'There is no user record corresponding to this identifier. The user may have been deleted.':
+            Alert.alert('', "הודעת שגיאה: כתובת אמייל זו אינה קיימת, אנא צור חשבון קודם",[,,{text:"אישור"}])
+            break;
           case 'Firebase: The password is invalid or the user does not have a password. (auth/wrong-password).':
-                Alert.alert('', "הודעת שגיאה: הסיסמא אינה תקינה, אנא נסה שנית",[{},{},{text:"אישור"}])
+                Alert.alert('', "הודעת שגיאה: הסיסמא אינה תקינה, אנא נסה שנית",[,,{text:"אישור"}])
                 break;
+          case 'The password is invalid or the user does not have a password.':
+            Alert.alert('', "הודעת שגיאה: הסיסמא אינה תקינה, אנא נסה שנית",[,,{text:"אישור"}])
+            break;
+          case 'A network error (such as timeout, interrupted connection or unreachable host) has occurred.':
+            Alert.alert('', "הודעת שגיאה: אירעה שגיאת רשת, אנא בדוק ונסה שנית",[,,{text:"אישור"}])
+            break;
+           
        }
      })
       // .catch(error=>alert(error.message))
       //    return;
-      // navigation.navigate('SignInScreen')
     }
   }
 
-  // const passwordVal = ()=>{
-  //   if(password === ""){
-  //     alert("סיסמא הינה שדה חובה")
-  //     navigation.navigate('LoginScreen')
-    
-  //    }
-  //    else{
-  //     setPassword("")
-  //     navigation.navigate('LoginScreen')
-  //   }
-  // }
-  // const Validate = () =>
-  //   {
-  //       if(email=== ""){
-  //           // alert("אמייל הינו שדה חובה")
-  //           // navigation.navigate('LoginScreen')
-  //           setEmailError("אמייל הינו שדה חובה")
-  //       }
-  //       else{
-  //           setEmailError("")
-  //           // navigation.navigate('LoginScreen')
-
-  //           // this.setState({emailError:""})
-
-  //       }
-  //       // if 
-  //   } 
   return(
     <View style={Styles.container}>
     <View style =  {Styles.center}>
@@ -152,31 +136,47 @@ const LoginScreen = ({navigation}) => {
      </View> 
     
     <Text style={Styles.textheader}>ברוכים הבאים!</Text>
+
     <View style={Styles.inputContainer}>
+    <View style={Styles.inputContainer2}>
+
     <TextInput
         value={email}
         onChangeText={(email) => setEmail(email)}
         placeholder="אימייל"
-        // iconType="user"
-        // onBlur={()=>emailValidate()}
+        activeUnderlineColor="white"
+        underlineColor='white'
+        selectionColor={"black"}
         autoFocus={true}
         keyboardType="email-address"
         autoCapitalize="none"
         autoCorrect={false}
         style = {Styles.textInput}
+        
       />
-       {/* <Text style={Styles.errorMsg}>Username must be 4 characters long.</Text> */}
+      <MaterialCommunityIcons name={"email"} size={22} color="#232323" />
+
+      </View>
         <Text style={Styles.errorMsg} >{emailError}</Text>
+        <View style={Styles.inputContainer2}>
        <TextInput
         value={password}
         onChangeText={(password) => setPassword(password)}
-        // onBlur={()=>passwordVal()}
         placeholder="סיסמה" 
         iconType="lock"
-        textAlign='right'
-        secureTextEntry={true}
+        activeUnderlineColor="white"
+        underlineColor='white'
+        selectionColor={"black"}
+        secureTextEntry={passwordVisibility}
+
         style = {Styles.textInput}
-      />
+       
+        />
+               
+        <Pressable onPress={handlePasswordVisibility}>
+    <MaterialCommunityIcons name={rightIcon} size={22} color="#232323" />
+          </Pressable>
+        </View>
          <Text style={Styles.errorMsg} >{passError}</Text>
 
          </View> 
@@ -209,12 +209,22 @@ const LoginScreen = ({navigation}) => {
             padding:20,
           },
           textInput:{
-            borderWidth:1,
-            borderColor: 'gray',
             backgroundColor: 'white',
             padding:10,
-            marginBottom:10,
+            // marginBottom:10,
+            textAlign:'right',
             borderRadius:5,
+            width:'90%',
+           
+          },
+       
+          inputContainer2: {
+            backgroundColor: 'white',
+            borderRadius: 8,
+            flexDirection: 'row',
+            alignItems: 'center',
+            borderWidth: 4,
+            borderColor: '#d7d7d7'
           },
           conTouch :{
             borderWidth:2,
@@ -243,7 +253,8 @@ const LoginScreen = ({navigation}) => {
           },
           textColor:{
             fontWeight: 'bold',
-            color: 'white',
+            color: color.WHITE,
+            
           },
           text: {
             fontSize: 18,
