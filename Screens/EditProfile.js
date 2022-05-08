@@ -21,6 +21,7 @@ import * as Location from 'expo-location';
 
 import {auth, db, storage} from '../FirebaseConfig';
 import React, { useState, useEffect } from 'react'
+import { color } from 'react-native-reanimated';
 
 const EditProfile = ({navigation}) => {
     const user = auth.currentUser
@@ -32,8 +33,11 @@ const EditProfile = ({navigation}) => {
     const [loading, setLoading] = useState(false);
 
     const getData = () => {
+      if (auth.currentUser) {
         const userid = auth.currentUser.uid;
-
+      
+        // const userid = auth.currentUser.uid;
+      if(userid){
         db.ref(`users/`+userid).on('value', function (snapshot) {
            setData(snapshot.val());
            setValueTypeFood(snapshot.val().Form.typeFood)
@@ -43,6 +47,12 @@ const EditProfile = ({navigation}) => {
            setLoading(true);
         });
      }
+     else{
+       alert("ERROR: not userid")
+     }
+    }
+     else{alert("ERROR: not auth.currentUser")}
+    }
 
      useEffect(() => {
       if (auth.currentUser) {
@@ -54,7 +64,7 @@ const EditProfile = ({navigation}) => {
           .getDownloadURL()
           .then((url) => {
             setImageUrl(url);
-            console.log(url)
+            // console.log(url)
           })
 
           .catch((e) => console.log('Errors while downloading => ', e));
@@ -120,7 +130,7 @@ const EditProfile = ({navigation}) => {
       
           }
         );
-        console.log(result)
+        // console.log(result)
         if (!result.cancelled) {////להוסיף הודעה במקרה של שגיאה
           if (auth.currentUser) {
             const userid = auth.currentUser.uid;
@@ -156,15 +166,11 @@ const EditProfile = ({navigation}) => {
       }, []);
  
     function onChaneHandler(item){
-        console.log(valueTypeFood)
         if(item != null){
-        // console.log("selected value",item);
         if (item.includes("אחר")){  //you writes if condition here, it's an example of code below
-        //   alert("yes")  //showing input
           setShowInput(true)
         }
         else{
-          //need set to false if not "others", because user can change select a lot of times
           setShowInput(false)
           }
         }
@@ -174,7 +180,7 @@ const EditProfile = ({navigation}) => {
     }
 
       const handleUpdate = async() => {
-      
+       
         const userid = auth.currentUser.uid;
         db.ref('users/'+userid)
         .update({
@@ -186,9 +192,9 @@ const EditProfile = ({navigation}) => {
         })
         db.ref('users/'+userid+'/Form')
         .update({
-    
+       
         catogary: valueCa || data.Form.catogary,
-        other: userData.other || data.Form.other,
+        other: userData.other || data.Form.other||null,
         typeFood: valueTypeFood ,
         amount : userData.amount || data.Form.amount,
         timePick: valueTimePick,
@@ -197,14 +203,14 @@ const EditProfile = ({navigation}) => {
         latitude:locationLat || data.Form.latitude,
         longitude:locationLon || data.Form.longitude,
 
-    
         })
         .then(() => {
           console.log('User Updated!');
           Alert.alert(
            'הפרופיל עודכן בהצלחה!'
           );
-          navigation.navigate('Tabs')
+          let type = 'giver'
+          navigation.navigate('Tabs',type)
         })
       }
       const [openCato, setOpenCato] = useState(false);
@@ -297,17 +303,21 @@ const EditProfile = ({navigation}) => {
           const toggleSwitch = () => {
             setIsEnabled(previousState => !previousState)
             if (!isEnabled){
+            //   alert("true")
               setLocation("המיקום הנוכחי הוא: " + locationLat + ','+ locationLon)
              
+              // setShowComponent(true)
             }
              else{    
+              // alert("false")
               setLocation("")
+              // setShowComponent(false)
             }
             };
         return (
         <ScrollView>
         <View style={{ paddingTop:20, margin:20,}}>
-          
+       
           <View
                   style={{
                     justifyContent: 'center',
@@ -324,8 +334,7 @@ const EditProfile = ({navigation}) => {
                 }}
                 style={{height: 100, width: 100}}
                 imageStyle={{borderRadius: 15}}>
-              
-              
+               
 
               </ImageBackground> 
               <View style={{ flexDirection: "column", alignItems:'center',justifyContent:'center',margin:10,}}>
@@ -349,38 +358,11 @@ const EditProfile = ({navigation}) => {
         underlineColor='white'
         value={userData ? userData.amount : ''} 
         onChangeText={(txt) => setUserData({...userData, amount: txt})}
+        //   ={true}
+        // underlineColorAndroid={"transparent"}
         selectionColor={"black"}
 
       />
-       
-        
-        <View style={styles.action}>
-          <Ionicons name="ios-clipboard-outline" color="#333333" size={20} />
-          <TextInput
-            multiline
-            numberOfLines={3}
-            placeholder="About Me"
-            placeholderTextColor="#666666"
-            value={userData ? userData.about : ''}
-            onChangeText={(txt) => setUserData({...userData, about: txt})}
-            autoCorrect={true}
-            style={[styles.textInput, {height: 40}]}
-          />
-        </View>
-        <View style={styles.action}>
-          <Feather name="phone" color="#333333" size={20} />
-          <TextInput
-            placeholder="Phone"
-            placeholderTextColor="#666666"
-            keyboardType="number-pad"
-            autoCorrect={false}
-            value={userData ? userData.phone : ''}
-            onChangeText={(txt) => setUserData({...userData, phone: txt})}
-            style={styles.textInput}
-          />
-        </View>
-
-      
         
     <Text  style={{marginVertical:20,writingDirection:'rtl'}}>קטגוריה</Text>
 
@@ -393,7 +375,6 @@ const EditProfile = ({navigation}) => {
       setItems={setItemCato}
       labelStyle={{textAlign:'left'}}
       selectedItemContainerStyle={{
-        backgroundColor:'red',
         direction:'rtl',
 
       }}
@@ -401,9 +382,7 @@ const EditProfile = ({navigation}) => {
         textAlign:"left",
         direction:'rtl',
       }}
-      placeholderStyle={
-        {
-          color:'blue',
+      placeholderStyle={{
           textAlign:'left',
         }
       }
@@ -413,8 +392,7 @@ const EditProfile = ({navigation}) => {
         position: 'relative',
         top:0,
     }}
-    //   zIndex={3000}
-    //   zIndexInverse={1000}
+  
       placeholder= {'אנא בחר את הקטגוריה המתאימה'} 
       listMode="SCROLLVIEW"
         scrollViewProps={{
@@ -438,26 +416,23 @@ const EditProfile = ({navigation}) => {
         multiple={true}
         multipleText="תודה שבחרת"
         placeholder= {'אנא בחר את סוג האוכל המתאים'}
+        // zIndex={1000}
+        // zIndexInverse={3000}
         listMode="SCROLLVIEW"
         scrollViewProps={{
             nestedScrollEnabled: true,
         }}
         labelStyle={{textAlign:'left'}}
         selectedItemContainerStyle={{
-        backgroundColor:'red',
         direction:'rtl',
-
         }}
         listItemLabelStyle={{
         textAlign:"left",
         direction:'rtl',
         }}
-        placeholderStyle={
-        {
-            color:'blue',
+        placeholderStyle={{
             textAlign:'left',
-        }
-        }
+        }}
 
         style = {{direction:'rtl',backgroundColor:'#7FFFD4' }}
         dropDownContainerStyle={{
@@ -465,7 +440,9 @@ const EditProfile = ({navigation}) => {
             top:0,
         }}
         mode= 'BADGE'
-      
+        // renderBadgeItem={(values) => <Badge>{console.log(values)}</Badge>  }
+    
+        //  onSelectItem={(item) => {handleOrangeClick(item)}  }
         onChangeValue={(item) => onChaneHandler(item)}
         
     ></DropDownPicker>
@@ -487,6 +464,8 @@ const EditProfile = ({navigation}) => {
         setOpen={setOpenTimePick}
         setValue={setValueTimePick}
         setItems={setItemTimePick} 
+        // zIndex={2000}
+        // zIndexInverse={2000}
         mode= 'BADGE'
         multiple = {true}
         multipleText="תודה שבחרת"
@@ -499,6 +478,7 @@ const EditProfile = ({navigation}) => {
             position: 'relative',
             top:0,
         }}
+            // closeAfterSelecting={true}
    > 
    </DropDownPicker>
    <Text  style={{ marginVertical:20,writingDirection:'rtl'}}>יש לצרוך עד</Text>
@@ -510,6 +490,8 @@ const EditProfile = ({navigation}) => {
         setOpen={setOpenWhen}
         setValue={setValueWhen}
         setItems={setItemWhen} 
+        // zIndex={1000}
+        // zIndexInverse={3000}
         dropDownContainerStyle={{
             position: 'relative',
             top:0,
@@ -517,6 +499,7 @@ const EditProfile = ({navigation}) => {
 
         closeAfterSelecting={true}
 
+        // multipleText="תודה שבחרת"
         placeholder= {'אנא בחר תוך כמה זמן יש לצרוך את האוכל'} 
         listMode="SCROLLVIEW"
           scrollViewProps={{
@@ -535,11 +518,13 @@ const EditProfile = ({navigation}) => {
           onValueChange={()=> toggleSwitch()}
           value={isEnabled}
           
+          // style = {{margin:10,writingDirection:'rtl'}}
       />
 
     </View>
     <Text  style={{marginVertical:10, writingDirection:'rtl'}}>שם הארגון</Text>
-      
+      {/* <View style={styles.action}> */}
+          {/* <FontAwesome name="user-o" color="#333333" size={20} /> */}
           <TextInput
             placeholder="שם הארגון"
             placeholderTextColor="#666666"
@@ -548,6 +533,7 @@ const EditProfile = ({navigation}) => {
             onChangeText={(txt) => setUserData({...userData, userName: txt})}
             style={styles.textInput}
           />
+        {/* </View> */}
         
         <Text  style={{marginVertical:10,writingDirection:'rtl'}}>פלאפון סלולרי</Text>
 
@@ -573,6 +559,7 @@ const EditProfile = ({navigation}) => {
         />
     <View style = {{ alignItems:'center'}}>
     <TouchableOpacity onPress={()=>{handleUpdate();}}
+    // {()=> navigation.navigate('SignInScreen')}
                 style={styles.conTouch} 
             ><Text style = {[styles.textColor,{fontSize: 20,}]}>עדכן</Text></TouchableOpacity> 
     </View> 
