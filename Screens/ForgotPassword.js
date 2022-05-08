@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 
 import {auth} from '../FirebaseConfig';
+import { color } from '../utils';
 
 
 const ForgotPassword = ({navigation}) => {
@@ -75,7 +76,7 @@ return(
   const Styles = StyleSheet.create({
      
     container: {
-      backgroundColor: '#009387',
+      backgroundColor: color.TURQUOISE,
       flex: 1,
       paddingTop:200,
       alignItems: 'center',
@@ -85,7 +86,7 @@ return(
     textInput:{
         borderWidth:1,
         borderColor: 'gray',
-        backgroundColor: 'white',
+        backgroundColor: color.WHITE,
         padding:10,
         marginBottom:20,
         borderRadius:5,
