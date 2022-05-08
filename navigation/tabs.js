@@ -2,19 +2,32 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Dashboard from '../Screens/DashboardPage';
+import DashboardGetter from '../Screens/DashboardGetter';
 import HomePage from '../Screens/HomePage';
 import GettersPage from '../Screens/GettersPage';
 import React from 'react';
-import { View, Text,StyleSheet, Button, } from 'react-native';
+import { View, Text,StyleSheet, Button, Alert, } from 'react-native';
 import {Icon} from 'react-native-elements'
 
 import { Directions, TouchableOpacity } from 'react-native-gesture-handler';
 import {auth} from '../FirebaseConfig';
+import { color } from '../utils';
+import SignInScreen from '../Screens/SignInScreen';
 
 const Tab = createBottomTabNavigator();
 
-const Tabs = ({navigation} ) =>
-{
+const Tabs = ({navigation, route} ) =>{
+    const {type} = route.params;
+  let name
+  // screen
+  if(type === 'giver'){
+    name = 'נתרמים'
+    // screen = Dashboard
+  }
+  else{
+    name = 'תורמים'
+    // screen = DashboardGetter
+  }
   const handleSignOut = () => {
     auth
       .signOut()
@@ -24,7 +37,6 @@ const Tabs = ({navigation} ) =>
       .catch(error => alert(error.message))
   }
     return(
-          // <NavigationContainer>
             <Tab.Navigator 
             
             initialRouteName={"איזור אישי"}
@@ -34,33 +46,43 @@ const Tabs = ({navigation} ) =>
            
             
             headerTitle: route.name,
-              headerRight: () => (
-                
-                <TouchableOpacity  onPress={handleSignOut}>
-                  <Icon
-                  type = "material-community"
-                  margin = {10}
-                  name = "menu"
-                  color = "#009387"
-                  size = {30}
-              
-                    />
-                </TouchableOpacity>
-              ),
-                
-                // headerTitleAlign:'left',
+            headerShown:true,
+             
                 headerStyle: {
-                  backgroundColor: 'blue',
-                  // height:80,
+                  backgroundColor: color.TURQUOISE,
                 },
-                headerTintColor: '#fff',  
+                headerTintColor: color.WHITE,  
                 headerTitleStyle: {
                   fontWeight: 'bold',
-                  // height:20,
-                  // margin:10,
+                 
                 },
+                headerRight: () => (
+                  <Ionicons
+                    name='log-out-outline'
+                    size = {26}
+                    style = {{right:10}}
+                    color ={color.WHITE}
+                    onPress = {()=>
+                      Alert.alert('יציאה','האם אתה בטוח שאתה רוצה לצאת?',[
+                      {
+                        text:'כן',
+                        onPress: ()=>{ auth
+                          .signOut()
+                          .then(() => {
+                            navigation.navigate("HomeScreen")
+                          })
+                          .catch(error => alert(error.message))},
+                        
+                      },{
+                        text:'לא',
+                      }
+                      ],
+                     
+                      )
+        
+                    }/>),
                 tabBarHideOnKeyboard: true,
-                tabBarActiveTintColor: "green",
+                tabBarActiveTintColor: color.TURQUOISE,
                 tabBarInactiveTintColor: "gray",
                 tabBarLabelStyle: {
                   fontSize: 10
@@ -77,7 +99,7 @@ const Tabs = ({navigation} ) =>
                   if (route.name === "בית") {
                     iconName = focused ? 'home' : 'home-outline';
       
-                  } else if (route.name === "נתרמים") {
+                  } else if (route.name === name) {
                     iconName = focused ? 'people' : 'people-outline';
       
                   } else if (route.name === "איזור אישי") {
@@ -90,10 +112,11 @@ const Tabs = ({navigation} ) =>
               })}>
         
                  <Tab.Screen name="בית" component={HomePage}  />
-                 <Tab.Screen name="נתרמים" component={GettersPage} />
+                 <Tab.Screen name={name} component={GettersPage} />
                  <Tab.Screen name="איזור אישי" component={Dashboard} />
+ 
+
             </Tab.Navigator>
-            // {/* </NavigationContainer> */}
 
     );
 }  
