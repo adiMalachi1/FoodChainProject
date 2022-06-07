@@ -6,31 +6,33 @@ import {
     StyleSheet,
     Image,
 } from 'react-native';
+import { StatusBar } from 'react-native';
 import { color } from '../utils';
-
+//the home screen of foodchain app with their logo organization
 const HomeScreen = ({navigation}) => {
     return (
       
-        <View style = { Styles.container}>
+        <View style = {styles.container}>
+          <StatusBar barStyle="dark-content" backgroundColor={color.TURQUOISE} />
             <Image
                 source={require('../assets/logoFoodChain.png')}
-                style={Styles.logo}
+                style={styles.logo}
             />
-            <View style = { Styles.center}>
-                <Text style={Styles.textSecondHeader}>ברוכים הבאים</Text>
-                <Text style={Styles.textSecondHeader}>לאפליקצית FoodChain!</Text>
-
+            <View style = {styles.center}>
+                <Text style={styles.textSecondHeader}>ברוכים הבאים</Text>
+                <Text style={styles.textSecondHeader}>לאפליקצית FoodChain!</Text>
             </View>
-            <TouchableOpacity onPress={()=> navigation.navigate('LoginScreen')}
-                style={Styles.conTouch} 
-            ><Text style = {[Styles.textColor,{fontSize: 20,}]}>המשך</Text></TouchableOpacity>
+            <TouchableOpacity onPress={()=> navigation.navigate('LoginScreen')} style={styles.conTouch} >
+                <Text style = {[styles.textColor,{fontSize: 20,}]}>המשך</Text>
+            </TouchableOpacity>
 
         </View> 
     );
 };
 
 export default HomeScreen;
-const Styles = StyleSheet.create({
+//styling
+const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: color.TURQUOISE,
@@ -50,7 +52,6 @@ const Styles = StyleSheet.create({
       center:{
         alignItems:'center',
         alignContent:'center',
-        // textAlign: 'center',
         padding: 20,
         paddingBottom:100,
       },
@@ -59,7 +60,6 @@ const Styles = StyleSheet.create({
         color: color.WHITE,
         fontSize: 30,
         paddingBottom:10,
-        // paddingTop:20,
       },
       logo: {
         height: 100,
