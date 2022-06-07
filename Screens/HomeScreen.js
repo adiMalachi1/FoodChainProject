@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { StatusBar } from 'react-native';
 import { color } from '../utils';
+
 //the home screen of foodchain app with their logo organization
 const HomeScreen = ({navigation}) => {
     return (
@@ -23,7 +24,7 @@ const HomeScreen = ({navigation}) => {
                 <Text style={styles.textSecondHeader}>לאפליקצית FoodChain!</Text>
             </View>
             <TouchableOpacity onPress={()=> navigation.navigate('LoginScreen')} style={styles.conTouch} >
-                <Text style = {[styles.textColor,{fontSize: 20,}]}>המשך</Text>
+                <Text style = {[styles.textColor,{fontSize: 22,}]}>המשך</Text>
             </TouchableOpacity>
 
         </View> 
