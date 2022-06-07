@@ -1,29 +1,27 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import { 
     View, 
     Text, 
     TouchableOpacity,
     TextInput,
     StyleSheet,
-    Image,
     Alert
 } from 'react-native';
-
 import {auth} from '../FirebaseConfig';
 import { color } from '../utils';
 
-
 const ForgotPassword = ({navigation}) => {
+  //state for email
     const [email, setEmail] = useState('');
 
+  //function for reset the password + validation-alert error
     const handleForgotPassword = () => {
         auth.sendPasswordResetEmail(email)
         .then(() => {
            Alert.alert('', "איפוס סיסמא נשלח לכתובת המייל שהזנת",[,,{text:"אישור"}])
 
-            // alert("איפוס סיסמא נשלח לכתובת המייל שהזנת");
         }, (error) => {
-          alert(error.message)
+          // alert(error.message)
           switch(error.message) {
             case 'Firebase: Error (auth/missing-email).':
               Alert.alert('', "הודעת שגיאה: כתובת האמייל חסרה, אנא הזן אותה",[,,{text:"אישור"}])
@@ -45,61 +43,61 @@ const ForgotPassword = ({navigation}) => {
         });
     }
 
-return(
-    <View style={Styles.container}>
-        <Text  style = {Styles.text}>אנא הזן את כתובת האמייל שלך על מנת לאפס את הסיסמא</Text>
-    <TextInput
-        value={email}
-        onChangeText={(email) => setEmail(email)}
-        placeholder="אימייל"
-        // iconType="user"
-        // onBlur={()=>emailValidate()}
-        autoFocus={true}
-        keyboardType="email-address"
-        autoCapitalize="none"
-        autoCorrect={false}
-        style = {Styles.textInput}
-        />
+  return(
+      <View style={styles.container}>
+          <Text  style = {styles.text}>אנא הזן את כתובת האמייל שלך על מנת לאפס את הסיסמא</Text>
+          <TextInput
+              value={email}
+              onChangeText={(email) => setEmail(email)}
+              placeholder="אימייל"
+              autoFocus={true}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              style = {styles.textInput}
+              />
 
-        <View>
-        <TouchableOpacity  onPress={handleForgotPassword}><Text style = {[Styles.text,{fontSize: 18,color:'#414141'},]} >איפוס סיסמא</Text></TouchableOpacity> 
-        <TouchableOpacity  onPress={()=> navigation.navigate('LoginScreen')}><Text style = {[Styles.text,{fontSize: 18,color:'#414141'},]} >חזור למסך כניסה</Text></TouchableOpacity> 
+          <View>
+            <TouchableOpacity  onPress={handleForgotPassword}>
+              <Text style = {[styles.text,{fontSize:18},]} >איפוס סיסמא</Text>
+            </TouchableOpacity> 
+            <TouchableOpacity  onPress={()=> navigation.navigate('LoginScreen')}>
+              <Text style = {[styles.text,{fontSize: 18},]} >חזור למסך כניסה</Text>
+            </TouchableOpacity> 
 
-        </View>
-   </View> 
+          </View>
+      </View> 
 
-    
+      
   )
 }
   export default ForgotPassword;
 
-  const Styles = StyleSheet.create({
-     
+  //styling
+  const styles = StyleSheet.create({  
     container: {
       backgroundColor: color.TURQUOISE,
       flex: 1,
       paddingTop:200,
       alignItems: 'center',
       alignContent:'center',
-    //   justifyContent:'center',
     },
     textInput:{
         borderWidth:1,
         borderColor: 'gray',
         backgroundColor: color.WHITE,
         padding:10,
-        marginBottom:20,
         borderRadius:5,
         width: '80%',
-        // writingDirection:'rtl'
+        marginVertical:20,
+        textAlign:'right',
       },
       text:{
         textAlign:'center',
         fontSize:20,
         fontWeight:'bold',
-        marginLeft:20,
-        marginRight:20,
-        paddingBottom:20,
-
-      },
+        marginHorizontal:20,
+        paddingBottom:10,
+        color:color.BLACK
+      },   
   })
