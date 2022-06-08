@@ -1,4 +1,3 @@
-
 import 'react-native-gesture-handler';
 import firebase from 'firebase'
 
@@ -11,8 +10,6 @@ const firebaseConfig = {
   appId: "1:53743036595:web:834e0ca4ccdaddbb0ce8c6",
   databaseURL: "https://foodchainproject-ec30e-default-rtdb.europe-west1.firebasedatabase.app/",
 };
-
-
 
 if (firebase.apps.length === 0) 
  firebase.initializeApp(firebaseConfig)
