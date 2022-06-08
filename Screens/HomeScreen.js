@@ -42,11 +42,11 @@ const styles = StyleSheet.create({
       },
       textColor:{
         fontWeight: 'bold',
-        color: color.WHITE,
+        color: color.WHITE_GRAY,
       },
       textheader:{
         fontWeight: 'bold',
-        color: color.WHITE,
+        color: color.WHITE_GRAY,
         fontSize: 40,
         paddingBottom:200,
       },
@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
       },
       textSecondHeader:{
         fontWeight: 'bold',
-        color: color.WHITE,
+        color: color.WHITE_GRAY,
         fontSize: 30,
         paddingBottom:10,
       },
@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
       },
       conTouch :{
         borderWidth:2,
-        borderColor:color.WHITE,
+        borderColor:color.WHITE_GRAY,
         alignItems:'center',
         justifyContent:'center',
         width:150,
