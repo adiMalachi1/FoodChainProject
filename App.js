@@ -8,6 +8,7 @@ const App = () => {
   LogBox.ignoreLogs(['Setting a timer for a long period of time'])
   LogBox.ignoreLogs(['Each child in a list should have a unique "key" prop'])
   LogBox.ignoreLogs(['AsyncStorage has been extracted from react-native core and will be removed in a future release.'])
+  LogBox.ignoreLogs(['PermissionsAndroid" module works only for Android platform.'])
 
   return(
     <NavigationContainer>      
