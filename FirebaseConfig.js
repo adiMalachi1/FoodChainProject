@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler';
 import firebase from 'firebase'
-
+ 
 const firebaseConfig = {
   apiKey: "AIzaSyAF0FeQYSfcVAqQHnRWjMJhwiCwu0mzsl0",
   authDomain: "foodchainproject-ec30e.firebaseapp.com",
