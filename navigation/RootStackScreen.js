@@ -1,32 +1,33 @@
 import React from 'react';
-import {Alert} from 'react-native'
+import {Alert, Platform} from 'react-native'
 import { createStackNavigator } from '@react-navigation/stack';
 import HomeScreen from '../Screens/HomeScreen';
 import LoginScreen from '../Screens/LoginScreen';
-import SignInScreen from '../Screens/SignInScreen';
-import SignUpScreen from '../Screens/SignupScreen';
+import SignUpScreen from '../Screens/SignUpScreen';
 import ForgotPassword from '../Screens/ForgotPassword';
 import FormGetter from '../Screens/FormGetter';
 import FormGiver from '../Screens/FormGiver';
 import Tabs from './Tabs'
 import HomePage from '../Screens/HomePage';
-import GettersPage from '../Screens/GettersPage';
+import SearchUser from '../Screens/SearchUser';
 import Dashboard from '../Screens/DashboardPage';
-import EditProfile from '../Screens/EditProfile';
+import EditForm from '../Screens/EditForm';
 import EditDetail from '../Screens/EditDetail';
-// import TabsGetter from './TabsGetter'
-import {auth, db, storage} from '../FirebaseConfig';
-
-import DrawerNavigator from './DrawerNavigator';
-import DashboardGetter from '../Screens/DashboardGetter';
-import { NavigationContainer } from '@react-navigation/native';
+import Chat from '../Screens/Chat';
+import SingleChat from '../Screens/SingleChat';
+import {auth} from '../FirebaseConfig';
+import { useNavigation } from '@react-navigation/native'
 import ShowProfiles from '../Screens/ShowProfiles';
 import { color } from '../utils';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+
 
 function getHeaderTitle(route) {
-  
+  // If the focused route is not found, we need to assume it's the initial screen
+  // This can happen during if there hasn't been any navigation inside the screen
+  // In our case, it's "Feed" as that's the first screen inside the navigator
   const routeName = getFocusedRouteNameFromRoute(route) ?? 'איזור אישי';
 
   switch (routeName) {
@@ -36,48 +37,57 @@ function getHeaderTitle(route) {
       return 'נתרמים';
     case 'תורמים':
       return 'תורמים';
-    case 'בית':
-      return 'בית';
+    case 'מפה':
+      return 'מפה';
   }
 }
 const RootStack = createStackNavigator();
 
-const RootStackScreen = ({navigation}) => {
+const RootStackScreen = () => {
+  const navigation = useNavigation();
+
  const handleSignOut = () => {
   auth
-    .signOut()
-    .then(() => {
-      navigation.navigate("HomeScreen")
-    })
-    .catch(error => alert(error.message))
+  .signOut()
+  .then(() => {
+    navigation.navigate("HomeScreen")
+  })
+  .catch(error => alert(error.message))
 } 
-  return(
-    //  <NavigationContainer  independent={true}> 
-   <RootStack.Navigator  screenOptions={{
-        headerShown: true,
-        headerTitleAlign:'center',
-        headerBackTitleVisible:false,
-        headerStyle: {
-          backgroundColor: color.TURQUOISE,
-        },
-        headerTintColor: '#fff',  
-        headerTitleStyle: {
-          fontWeight: 'bold',
-          // height:20,
-          // margin:10,
-        },
-        headerRight: () => (
+return(
+  
+  <RootStack.Navigator  screenOptions={{
+      headerShown: true,      
+      headerTitleAlign:'center',
+      headerBackTitleVisible:false,
+      headerStyle: {
+        backgroundColor: color.TURQUOISE,
+      },
+      headerTintColor: '#fff',  
+      headerTitleStyle: {
+        fontWeight: 'bold',
+        flexDirection:'row-reverse',
+        writingDirection:'rtl'
+      
+      },
+      headerRight: () => (
+          Platform.OS === 'ios'?
+              <MaterialCommunityIcons name={"arrow-right"} size={26} color={color.WHITE_GRAY} 
+              style = {{right:10,}}
+              onPress = {() => navigation.goBack()}
+                />
+              :
           <Ionicons
             name='log-out-outline'
             size = {26}
             style = {{right:10}}
-            color ={color.WHITE}
+            color ={color.WHITE_GRAY}
             onPress = {()=>
               Alert.alert('יציאה','האם אתה בטוח שאתה רוצה לצאת?',[
               {
                 text:'כן',
-                onPress: ()=>{ auth
-                  .signOut()
+                onPress: ()=>{ 
+                  auth.signOut()
                   .then(() => {
                     navigation.navigate("HomeScreen")
                   })
@@ -85,38 +95,69 @@ const RootStackScreen = ({navigation}) => {
                 
               },{
                 text:'לא',
+                onPress: ()=>{ 
+                  return
+                },
               }
               ],
-              // {
-              //   cancelable:false,
-              // },
               )
 
             }/>),
         
-      }}>
+        headerLeft:()=>(
+          Platform.OS === 'ios'?
+          <Ionicons
+          name='log-out-outline'
+          size = {26}
+          style = {{left:10}}
+          color ={color.WHITE_GRAY}
+          onPress = {()=>
+            Alert.alert('יציאה','האם אתה בטוח שאתה רוצה לצאת?',[
+            {
+              text: 'לא',
+              onPress: ()=>{ 
+                  return
+                
+            }},{
+              text: 'כן',
+              onPress: ()=>{ 
+                    auth
+                    .signOut()
+                    .then(() => {
+                      navigation.navigate("HomeScreen")
+                  })
+                  .catch(error => alert(error.message))
+                } 
+              
+            }
+            ],)}/>
+          :
+          <MaterialCommunityIcons name={"arrow-right"} size={26} color={color.WHITE_GRAY} 
+            style = {{left:10,}}
+            onPress = {() => navigation.goBack()}
+              />
+        ),
+        }}>
         
         <RootStack.Screen name="HomeScreen" component={HomeScreen}	options={{header: () => null}}/>
         <RootStack.Screen name="LoginScreen" component={LoginScreen}	options={{header: () => null}}/>
-        <RootStack.Screen name="SignInScreen" component={SignInScreen}/>
-        <RootStack.Screen name="SignUpScreen" component={SignUpScreen}/>
-        <RootStack.Screen name="ForgotPassword" component={ForgotPassword}/>
-        <RootStack.Screen name="FormGetter" component={FormGetter}/>
-        <RootStack.Screen name="FormGiver" component={FormGiver}/>
+        <RootStack.Screen name="מסך הרשמה" component={SignUpScreen}options={{header: () => null}}/>
+        <RootStack.Screen name="ForgotPassword" component={ForgotPassword} options={{header: () => null}}/>
+        <RootStack.Screen name="שאלון נתרם" component={FormGetter}options={{header: () => null}}/>
+        <RootStack.Screen name="שאלון תורם" component={FormGiver}options={{header: () => null}}/>
         <RootStack.Screen name="Tabs"  component={Tabs}
           options={({ route }) => ({
           headerTitle: getHeaderTitle(route),
           headerShown: false,
         })}/>
-        {/* <RootStack.Screen name="איזור אישי" component={TabsGetter}/> */}
         <RootStack.Screen name="HomePage" component={HomePage}/>
-        <RootStack.Screen name="GettersPage" component={GettersPage}/>
+        <RootStack.Screen name="משתמשים" component={SearchUser}/>
         <RootStack.Screen name="Dashboard" component={Dashboard} />
-        {/* <RootStack.Screen name="DashboardGetter" component={DashboardGetter}options={{header: () => null}}/> */}
-        <RootStack.Screen name="Drawer" component={DrawerNavigator}/>
-        <RootStack.Screen name="EditProfile" component={EditProfile}/>
+        <RootStack.Screen name="עריכת פרטי הטופס" component={EditForm}/>
         <RootStack.Screen name="עריכת פרטים אישיים" component={EditDetail}/>
-        <RootStack.Screen name="ShowProfiles" component={ShowProfiles}/>
+        <RootStack.Screen name="הצגת פרופיל" component={ShowProfiles}/>
+        <RootStack.Screen name="צ'אט" component={Chat} />
+        <RootStack.Screen name="צ'אט פרטי" component={SingleChat}/>
 
     </RootStack.Navigator>
   // {/* </NavigationContainer> */}
