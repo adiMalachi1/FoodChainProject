@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: color.TURQUOISE,
         alignItems: 'center',
-        paddingTop: 100, 
+        paddingTop: '30%', 
       },
       textColor:{
         fontWeight: 'bold',
@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: color.WHITE_GRAY,
         fontSize: 40,
-        paddingBottom:200,
+        // paddingBottom:200,
       },
       center:{
         alignItems:'center',
@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
       },
       logo: {
         height: 100,
-        width: 100,
+        width: 120,
         borderRadius: 10,
         paddingBottom: 100,
         paddingVertical: 10,
