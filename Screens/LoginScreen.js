@@ -9,11 +9,11 @@ import {
     Pressable,
     TextInput,
     StatusBar,
+    KeyboardAvoidingView
 } from 'react-native';
 import {auth,db} from '../FirebaseConfig';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { color } from '../utils';
-
 const LoginScreen = ({navigation}) => {
   // const use states
   const [email, setEmail] = useState('');
@@ -65,11 +65,32 @@ const LoginScreen = ({navigation}) => {
         auth.signInWithEmailAndPassword(email,password) // sign in to firebase
         .then(userCredentials => {
           var type
+          const user = userCredentials
+          // console.log(user)
           const userid = userCredentials.user.uid;//get userid
           db.ref(`users/`+userid).on('value', function (snapshot) { // ref to this user in firebase
-            type = (snapshot.val().type) //get the type of current user that sigin
+            var check = snapshot.child("/Form").exists(); 
+            // var userExists =  snapshot.child("email").exists(); 
+
+            if(!check ){
+              user.user.delete() 
+              .then(() => {
+                db.ref('/users').child(userid).remove()//remove from db
+                console.log('Successfully deleted user');
+                Alert.alert('', "הודעת שגיאה: כתובת אימייל זו אינה קיימת, אנא צור חשבון קודם",[,,{text:"אישור"}])
+                  return;
+
+              })
+              .catch((error) => {
+                console.log('Error deleting user:', error);
+              })   // delete user from auth  
+
+            }
+            else{
+              type = (snapshot.val().type) //get the type of current user that sigin
               navigation.navigate("Tabs", {type})
-        
+            }
+            
           })
       })
        
@@ -111,6 +132,7 @@ const LoginScreen = ({navigation}) => {
   return(
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor={color.TURQUOISE} />
+     
       <View style =  {styles.center}>
         <Image
           source={require('../assets/logoFoodChain.png')}
@@ -132,7 +154,7 @@ const LoginScreen = ({navigation}) => {
               autoCorrect={false}
               style = {styles.textInput}    
             />
-            <MaterialCommunityIcons name={"email"} size={22} color={color.BLACK} />
+            <MaterialCommunityIcons name={"email"} size={22} color={color.ICONEYE} />
         </View>
           <Text style={styles.errorMsg} >{emailError}</Text>
         <View style={styles.inputContainer2}>
@@ -148,9 +170,10 @@ const LoginScreen = ({navigation}) => {
             style = {styles.textInput}    
             />          
           <Pressable onPress={handlePasswordVisibility}>
-            <MaterialCommunityIcons name={rightIcon} size={22} color={color.BLACK} />
+            <MaterialCommunityIcons name={rightIcon} size={22} color={color.ICONEYE}  />
           </Pressable>
         </View>
+
       </View> 
       <View style = {styles.center}>
           <TouchableOpacity onPress={handleLogin} style={styles.conTouch} >
@@ -160,7 +183,7 @@ const LoginScreen = ({navigation}) => {
             <Text style = {[styles.textFor,{fontSize: 18,}]} >צור חשבון</Text>
           </TouchableOpacity> 
           <TouchableOpacity  onPress={()=> navigation.navigate('ForgotPassword')}>
-            <Text style = {styles.textFor} >שכחת סיסמא?</Text>
+            <Text style =  {[styles.textFor,{fontSize: 18,}]} >שכחת סיסמא?</Text>
           </TouchableOpacity> 
       </View> 
 
@@ -173,7 +196,7 @@ const LoginScreen = ({navigation}) => {
           container: {
             backgroundColor: color.TURQUOISE,
             flex: 1,
-            paddingTop:100,
+            paddingTop:'20%',
             alignItems: 'center',
           },
           inputContainer:{
@@ -187,6 +210,7 @@ const LoginScreen = ({navigation}) => {
           textInput:{
             backgroundColor: color.WHITE_GRAY,
             padding:10,
+            fontSize:16,
             // marginBottom:10,
             textAlign:'right',
             borderRadius:5,
@@ -196,10 +220,21 @@ const LoginScreen = ({navigation}) => {
           inputContainer2: {
             backgroundColor: color.WHITE_GRAY,
             borderRadius: 8,
-            flexDirection: 'row',
+            // flexDirection: 'row-reverse',
             alignItems: 'center',
             borderWidth: 4,
             borderColor: '#d7d7d7',
+            ...Platform.select({
+              ios: {
+                  flexDirection: 'row',
+  
+              },
+              android:{
+                  flexDirection: 'row-reverse',
+                  // padding: 6,
+              },
+  
+           }),
           },
           conTouch :{
             marginTop:20,
