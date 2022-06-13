@@ -13,6 +13,7 @@ import SearchUser from '../Screens/SearchUser';
 import Dashboard from '../Screens/DashboardPage';
 import EditForm from '../Screens/EditForm';
 import EditDetail from '../Screens/EditDetail';
+import ChatList from '../Screens/ChatList'
 import Chat from '../Screens/Chat';
 import SingleChat from '../Screens/SingleChat';
 import {auth} from '../FirebaseConfig';
@@ -22,7 +23,6 @@ import { color } from '../utils';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-
 
 function getHeaderTitle(route) {
   // If the focused route is not found, we need to assume it's the initial screen
@@ -39,6 +39,8 @@ function getHeaderTitle(route) {
       return 'תורמים';
     case 'מפה':
       return 'מפה';
+    case "צ'אט":
+    return "צ'אט";
   }
 }
 const RootStack = createStackNavigator();
@@ -68,7 +70,6 @@ return(
         fontWeight: 'bold',
         flexDirection:'row-reverse',
         writingDirection:'rtl'
-      
       },
       headerRight: () => (
           Platform.OS === 'ios'?
@@ -158,6 +159,8 @@ return(
         <RootStack.Screen name="הצגת פרופיל" component={ShowProfiles}/>
         <RootStack.Screen name="צ'אט" component={Chat} />
         <RootStack.Screen name="צ'אט פרטי" component={SingleChat}/>
+        <RootStack.Screen name="רשימת צ'אט" component={ChatList}/>
+
 
     </RootStack.Navigator>
   // {/* </NavigationContainer> */}
