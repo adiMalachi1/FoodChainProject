@@ -4,6 +4,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import Dashboard from '../Screens/DashboardPage';
 import HomePage from '../Screens/HomePage';
 import SearchUser from '../Screens/SearchUser';
+import ChatList from '../Screens/ChatList'
 import React from 'react';
 import {Alert,Platform } from 'react-native';
 
@@ -125,6 +126,9 @@ const Tabs = ({navigation, route} ) =>{
                     iconName = focused ? 'map' : 'map-outline'; } 
                   else if (route.name === name) {
                     iconName = focused ? 'people' : 'people-outline';} 
+                  else if (route.name === "צ'אט") {
+                    iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';
+                  }
                   else if (route.name === "איזור אישי") {
                     iconName = focused ? 'person' : 'person-outline';
                   }
@@ -134,6 +138,7 @@ const Tabs = ({navigation, route} ) =>{
         
                  <Tab.Screen name="מפה" component={HomePage}  />
                  <Tab.Screen name={name} component={SearchUser} />
+                 <Tab.Screen name="צ'אט" component={ChatList} />
                  <Tab.Screen name="איזור אישי" component={Dashboard} />
  
 
