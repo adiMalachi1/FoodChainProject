@@ -24,13 +24,13 @@ const ForgotPassword = ({navigation}) => {
           // alert(error.message)
           switch(error.message) {
             case 'Firebase: Error (auth/missing-email).':
-              Alert.alert('', "הודעת שגיאה: כתובת האמייל חסרה, אנא הזן אותה",[,,{text:"אישור"}])
+              Alert.alert('', "הודעת שגיאה: כתובת האימייל חסרה, אנא הזן אותה",[,,{text:"אישור"}])
                   break;
             case 'Firebase: The email address is badly formatted. (auth/invalid-email).':
-              Alert.alert('', "הודעת שגיאה: כתובת אמייל לא תקינה",[,,{text:"אישור"}])
+              Alert.alert('', "הודעת שגיאה: כתובת אימייל לא תקינה",[,,{text:"אישור"}])
               break;
             case 'The email address is badly formatted.':
-              Alert.alert('', "הודעת שגיאה: כתובת אמייל לא תקינה",[,,{text:"אישור"}])
+              Alert.alert('', "הודעת שגיאה: כתובת אימייל לא תקינה",[,,{text:"אישור"}])
               break;
             case 'Firebase: There is no user record corresponding to this identifier. The user may have been deleted. (auth/user-not-found).':
               Alert.alert('', "הודעת שגיאה: כתובת זו אינה נמצאת במערכת, אנא נסה שנית",[,,{text:"אישור"}])
@@ -45,7 +45,7 @@ const ForgotPassword = ({navigation}) => {
 
   return(
       <View style={styles.container}>
-          <Text  style = {styles.text}>אנא הזן את כתובת האמייל שלך על מנת לאפס את הסיסמא</Text>
+          <Text  style = {styles.text}>אנא הזן את כתובת האימייל שלך על מנת לאפס את הסיסמא</Text>
           <TextInput
               value={email}
               onChangeText={(email) => setEmail(email)}
@@ -67,8 +67,6 @@ const ForgotPassword = ({navigation}) => {
 
           </View>
       </View> 
-
-      
   )
 }
   export default ForgotPassword;
@@ -84,8 +82,8 @@ const ForgotPassword = ({navigation}) => {
     },
     textInput:{
         borderWidth:1,
-        borderColor: 'gray',
-        backgroundColor: color.WHITE,
+        borderColor: color.GRAY,
+        backgroundColor: color.WHITE_GRAY,
         padding:10,
         borderRadius:5,
         width: '80%',
