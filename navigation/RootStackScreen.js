@@ -14,7 +14,6 @@ import Dashboard from '../Screens/DashboardPage';
 import EditForm from '../Screens/EditForm';
 import EditDetail from '../Screens/EditDetail';
 import ChatList from '../Screens/ChatList'
-import Chat from '../Screens/Chat';
 import SingleChat from '../Screens/SingleChat';
 import {auth} from '../FirebaseConfig';
 import { useNavigation } from '@react-navigation/native'
@@ -24,11 +23,9 @@ import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-function getHeaderTitle(route) {
-  // If the focused route is not found, we need to assume it's the initial screen
-  // This can happen during if there hasn't been any navigation inside the screen
-  // In our case, it's "Feed" as that's the first screen inside the navigator
-  const routeName = getFocusedRouteNameFromRoute(route) ?? 'איזור אישי';
+function getHeaderTitle(route) { //get header title
+ 
+  const routeName = getFocusedRouteNameFromRoute(route) ?? 'איזור אישי'; 
 
   switch (routeName) {
     case 'איזור אישי':
@@ -43,21 +40,12 @@ function getHeaderTitle(route) {
     return "צ'אט";
   }
 }
+
 const RootStack = createStackNavigator();
-
 const RootStackScreen = () => {
-  const navigation = useNavigation();
+const navigation = useNavigation(); //for navigation goBack
 
- const handleSignOut = () => {
-  auth
-  .signOut()
-  .then(() => {
-    navigation.navigate("HomeScreen")
-  })
-  .catch(error => alert(error.message))
-} 
-return(
-  
+return( 
   <RootStack.Navigator  screenOptions={{
       headerShown: true,      
       headerTitleAlign:'center',
@@ -65,7 +53,7 @@ return(
       headerStyle: {
         backgroundColor: color.TURQUOISE,
       },
-      headerTintColor: '#fff',  
+      headerTintColor: color.WHITE,  
       headerTitleStyle: {
         fontWeight: 'bold',
         flexDirection:'row-reverse',
@@ -132,20 +120,20 @@ return(
               
             }
             ],)}/>
-          :
-          <MaterialCommunityIcons name={"arrow-right"} size={26} color={color.WHITE_GRAY} 
-            style = {{left:10,}}
-            onPress = {() => navigation.goBack()}
-              />
-        ),
+            :
+            <MaterialCommunityIcons name={"arrow-right"} size={26} color={color.WHITE_GRAY} 
+              style = {{left:10,}}
+              onPress = {() => navigation.goBack()}
+                />
+          ),
         }}>
         
         <RootStack.Screen name="HomeScreen" component={HomeScreen}	options={{header: () => null}}/>
         <RootStack.Screen name="LoginScreen" component={LoginScreen}	options={{header: () => null}}/>
         <RootStack.Screen name="מסך הרשמה" component={SignUpScreen}options={{header: () => null}}/>
         <RootStack.Screen name="ForgotPassword" component={ForgotPassword} options={{header: () => null}}/>
-        <RootStack.Screen name="שאלון נתרם" component={FormGetter}options={{header: () => null}}/>
-        <RootStack.Screen name="שאלון תורם" component={FormGiver}options={{header: () => null}}/>
+        <RootStack.Screen name="שאלון נתרם" component={FormGetter}options={{headerRight: () => null ,headerLeft: () => null}}/>
+        <RootStack.Screen name="שאלון תורם" component={FormGiver}options={{headerRight: () => null ,headerLeft: () => null}}/>
         <RootStack.Screen name="Tabs"  component={Tabs}
           options={({ route }) => ({
           headerTitle: getHeaderTitle(route),
@@ -157,13 +145,10 @@ return(
         <RootStack.Screen name="עריכת פרטי הטופס" component={EditForm}/>
         <RootStack.Screen name="עריכת פרטים אישיים" component={EditDetail}/>
         <RootStack.Screen name="הצגת פרופיל" component={ShowProfiles}/>
-        <RootStack.Screen name="צ'אט" component={Chat} />
         <RootStack.Screen name="צ'אט פרטי" component={SingleChat}/>
         <RootStack.Screen name="רשימת צ'אט" component={ChatList}/>
-
-
     </RootStack.Navigator>
-  // {/* </NavigationContainer> */}
 );}
 
+//make this component available to the app
 export default RootStackScreen;
