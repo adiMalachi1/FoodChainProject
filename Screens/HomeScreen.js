@@ -11,50 +11,44 @@ import { color } from '../utils';
 
 //the home screen of foodchain app with their logo organization
 const HomeScreen = ({navigation}) => {
-    return (
-      
-        <View style = {styles.container}>
-          <StatusBar barStyle="dark-content" backgroundColor={color.TURQUOISE} />
-            <Image
-                source={require('../assets/logoFoodChain.png')}
-                style={styles.logo}
-            />
-            <View style = {styles.center}>
-                <Text style={styles.textSecondHeader}>ברוכים הבאים</Text>
-                <Text style={styles.textSecondHeader}>לאפליקצית FoodChain!</Text>
-            </View>
-            <TouchableOpacity onPress={()=> navigation.navigate('LoginScreen')} style={styles.conTouch} >
-                <Text style = {[styles.textColor,{fontSize: 22,}]}>המשך</Text>
-            </TouchableOpacity>
-
-        </View> 
-    );
+  return (
+      <View style = {styles.container}>
+        <StatusBar barStyle="dark-content" backgroundColor={color.TURQUOISE} />
+          <Image
+              source={require('../assets/logoFoodChain.png')}
+              style={styles.logo}
+          />
+          <View style = {styles.center}>
+              <Text style={styles.textSecondHeader}>ברוכים הבאים</Text>
+              <Text style={styles.textSecondHeader}>לאפליקצית FoodChain!</Text>
+          </View>
+          <TouchableOpacity onPress={()=> navigation.navigate('LoginScreen')} style={styles.conTouch}>
+              <Text style = {[styles.textColor,{fontSize: 22,}]}>המשך</Text>
+          </TouchableOpacity>
+      </View> 
+  );
 };
 
+//make this component available to the app
 export default HomeScreen;
-//styling
+
+//define styling
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: color.TURQUOISE,
         alignItems: 'center',
-        paddingTop: '30%', 
+        paddingVertical: '30%', 
       },
       textColor:{
         fontWeight: 'bold',
         color: color.WHITE_GRAY,
       },
-      textheader:{
-        fontWeight: 'bold',
-        color: color.WHITE_GRAY,
-        fontSize: 40,
-        // paddingBottom:200,
-      },
       center:{
         alignItems:'center',
         alignContent:'center',
         padding: 20,
-        paddingBottom:100,
+        paddingBottom:"40%",
       },
       textSecondHeader:{
         fontWeight: 'bold',
