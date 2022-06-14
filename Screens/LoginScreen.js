@@ -9,11 +9,11 @@ import {
     Pressable,
     TextInput,
     StatusBar,
-    KeyboardAvoidingView
 } from 'react-native';
 import {auth,db} from '../FirebaseConfig';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { color } from '../utils';
+
 const LoginScreen = ({navigation}) => {
   // const use states
   const [email, setEmail] = useState('');
@@ -22,7 +22,6 @@ const LoginScreen = ({navigation}) => {
   const [passError, setpassError] = useState();
   const [passwordVisibility, setPasswordVisibility] = useState(true);
   const [rightIcon, setRightIcon] = useState('eye-off'); // for hide password
-
 
   const handlePasswordVisibility = () => { //handle function to show/not show password
     if (rightIcon === 'eye') {
@@ -33,7 +32,6 @@ const LoginScreen = ({navigation}) => {
       setPasswordVisibility(!passwordVisibility);
     }
   };
-
 
   const handleLogin =()=>{ // handle function for login to app + validation
     
@@ -60,17 +58,15 @@ const LoginScreen = ({navigation}) => {
           }
       }
 
-     else{
+    else{
         setpassError("")
         auth.signInWithEmailAndPassword(email,password) // sign in to firebase
         .then(userCredentials => {
           var type
           const user = userCredentials
-          // console.log(user)
           const userid = userCredentials.user.uid;//get userid
           db.ref(`users/`+userid).on('value', function (snapshot) { // ref to this user in firebase
             var check = snapshot.child("/Form").exists(); 
-            // var userExists =  snapshot.child("email").exists(); 
 
             if(!check ){
               user.user.delete() 
@@ -92,8 +88,7 @@ const LoginScreen = ({navigation}) => {
             }
             
           })
-      })
-       
+        })
         .catch(error => {    //catch error and show to user by alert
           console.log(error)
           // alert(error.message)
@@ -121,18 +116,15 @@ const LoginScreen = ({navigation}) => {
               break;
             case 'A network error (such as timeout, interrupted connection or unreachable host) has occurred.':
               Alert.alert('', "הודעת שגיאה: אירעה שגיאת רשת, אנא בדוק ונסה שנית",[,,{text:"אישור"}])
-              break;
-            
-        }
-      })
-    
+              break;     
+          }
+        })
     }
   }
 
   return(
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor={color.TURQUOISE} />
-     
       <View style =  {styles.center}>
         <Image
           source={require('../assets/logoFoodChain.png')}
@@ -173,119 +165,104 @@ const LoginScreen = ({navigation}) => {
             <MaterialCommunityIcons name={rightIcon} size={22} color={color.ICONEYE}  />
           </Pressable>
         </View>
-
       </View> 
       <View style = {styles.center}>
           <TouchableOpacity onPress={handleLogin} style={styles.conTouch} >
               <Text style = {[styles.textColor,{fontSize: 25,textAlign:'center'}]}>כניסה</Text>
           </TouchableOpacity>
-          <TouchableOpacity  onPress={()=> navigation.navigate('מסך הרשמה')}>
+          <TouchableOpacity  onPress={()=> navigation.navigate('שאלון תורם')}>
             <Text style = {[styles.textFor,{fontSize: 18,}]} >צור חשבון</Text>
           </TouchableOpacity> 
           <TouchableOpacity  onPress={()=> navigation.navigate('ForgotPassword')}>
             <Text style =  {[styles.textFor,{fontSize: 18,}]} >שכחת סיסמא?</Text>
           </TouchableOpacity> 
       </View> 
-
     </View> 
     
     
   )}
+
+  //make this component available to the app
   export default LoginScreen;
+
+  //define styling
   const styles = StyleSheet.create({
-          container: {
-            backgroundColor: color.TURQUOISE,
-            flex: 1,
-            paddingTop:'20%',
-            alignItems: 'center',
-          },
-          inputContainer:{
-             width:'90%',
-          },
-          center:{
-            alignItems: 'center',
-            alignSelf:'center',
-            padding:20,
-          },
-          textInput:{
-            backgroundColor: color.WHITE_GRAY,
-            padding:10,
-            fontSize:16,
-            // marginBottom:10,
-            textAlign:'right',
-            borderRadius:5,
-            width:'90%',
-            
-          },
-          inputContainer2: {
-            backgroundColor: color.WHITE_GRAY,
-            borderRadius: 8,
-            // flexDirection: 'row-reverse',
-            alignItems: 'center',
-            borderWidth: 4,
-            borderColor: '#d7d7d7',
-            ...Platform.select({
-              ios: {
-                  flexDirection: 'row',
-  
-              },
-              android:{
-                  flexDirection: 'row-reverse',
-                  // padding: 6,
-              },
-  
-           }),
-          },
-          conTouch :{
-            marginTop:20,
-            borderWidth:2,
-            color: color.WHITE_GRAY,
-            alignSelf:'center',
-            width:150,
-            height:50,
-            borderColor: color.WHITE_GRAY,
-            borderRadius: 10,
-            backgroundColor:color.TURQUOISE,
-            alignItems:'center',
-            justifyContent:'center',
-            alignContent:'center',
-            },
-          logo: {
-            height: 85,
-            width: 85,
-            resizeMode: 'cover',
-            // alignItems: 'center',
-            justifyContent: 'center',
-            borderRadius: 5,
-          },
-          textheader:{
-            fontWeight: 'bold',
-            color: color.WHITE_GRAY,
-            fontSize: 35,
-            paddingBottom:40,
-            textAlign:'center'
-          },
-          textColor:{
-            fontWeight: 'bold',
-            color: color.WHITE_GRAY,
-            
-          },
-          // text: {
-          //   fontSize: 18,
-          //   marginTop:10,
-          //   marginBottom: 10,
-          //   color: color.BLACK,
-          //   fontWeight: 'bold',
-          // },
-          textFor: {
-            fontSize: 15,
-            marginTop:10,
-            // marginBottom: 5,
-            color: color.BLACK,
-            fontWeight: 'bold',
-          },
-          errorMsg: {
-            color: '#FF0000',
-            fontSize: 14,
+    container: {
+      backgroundColor: color.TURQUOISE,
+      flex: 1,
+      paddingVertical:'25%',
+      alignItems: 'center',
+    },
+    inputContainer:{
+        width:'90%',
+    },
+    center:{
+      alignItems: 'center',
+      alignSelf:'center',
+      padding:20,
+    },
+    textInput:{
+      backgroundColor: color.WHITE_GRAY,
+      padding:10,
+      fontSize:16,
+      textAlign:'right',
+      borderRadius:5,
+      width:'90%',
+      
+    },
+    inputContainer2: {
+      backgroundColor: color.WHITE_GRAY,
+      borderRadius: 8,
+      alignItems: 'center',
+      borderWidth: 4,
+      borderColor: color.BORDER,
+      ...Platform.select({
+        ios: {
+            flexDirection: 'row',
         },
-        })
+        android:{
+            flexDirection: 'row-reverse',
+        },
+      }),
+    },
+    conTouch :{
+      marginTop:20,
+      borderWidth:2,
+      color: color.WHITE_GRAY,
+      width:150,
+      height:50,
+      borderColor: color.WHITE_GRAY,
+      borderRadius: 10,
+      backgroundColor:color.TURQUOISE,
+      alignItems:'center',
+      justifyContent:'center',
+      },
+    logo: {
+      height: 85,
+      width: 85,
+      resizeMode: 'cover',
+      justifyContent: 'center',
+      borderRadius: 5,
+    },
+    textheader:{
+      fontWeight: 'bold',
+      color: color.WHITE_GRAY,
+      fontSize: 35,
+      paddingBottom:40,
+      textAlign:'center'
+    },
+    textColor:{
+      fontWeight: 'bold',
+      color: color.WHITE_GRAY, 
+    },
+    textFor: {
+      fontSize: 15,
+      marginTop:10,
+      color: color.BLACK,
+      fontWeight: 'bold',
+    },
+    errorMsg: {
+      color: '#FF0000',
+      fontSize: 14,
+    },
+  })
