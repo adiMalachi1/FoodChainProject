@@ -4,15 +4,17 @@ import {
     StyleSheet,
     Platform,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native'
 import { color } from '../utils';
 import React from 'react'
 import {StatusBar} from 'react-native';
 import { Avatar} from 'react-native-elements';
-const ChatHeader = (props) => {
-    const { data } = props;
-    const navigation = useNavigation();
 
+const ChatHeader = (props) => {
+    
+    //getting data in params - image +name of user
+    const { data } = props;
+
+    //chat header - returns the image and name of user
     return (
         <View style={styles.container}>
             <StatusBar barStyle="dark-content" backgroundColor={color.TURQUOISE} translucent={false} />
@@ -21,7 +23,6 @@ const ChatHeader = (props) => {
                     rounded
                     size="medium"
                 /> 
-        
             <View style={styles.side}>
                 <Text
                     numberOfLines={1}
@@ -32,13 +33,12 @@ const ChatHeader = (props) => {
                         textTransform:'capitalize'
                     }}>
                     {data.name}
-                </Text>
-                
+                </Text>     
             </View>
         </View>
     );
 };
-// define your styles
+// define styles
 const styles = StyleSheet.create({
     container: {
         height:70,
