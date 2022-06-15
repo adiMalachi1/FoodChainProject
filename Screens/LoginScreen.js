@@ -170,7 +170,7 @@ const LoginScreen = ({navigation}) => {
           <TouchableOpacity onPress={handleLogin} style={styles.conTouch} >
               <Text style = {[styles.textColor,{fontSize: 25,textAlign:'center'}]}>כניסה</Text>
           </TouchableOpacity>
-          <TouchableOpacity  onPress={()=> navigation.navigate('שאלון תורם')}>
+          <TouchableOpacity  onPress={()=> navigation.navigate('מסך הרשמה')}>
             <Text style = {[styles.textFor,{fontSize: 18,}]} >צור חשבון</Text>
           </TouchableOpacity> 
           <TouchableOpacity  onPress={()=> navigation.navigate('ForgotPassword')}>
