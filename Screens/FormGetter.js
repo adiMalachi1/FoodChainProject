@@ -57,7 +57,7 @@ const FormGetter = ({navigation}) => {
             handleImagePicked(result);
           } 
         else {
-          alert("error - not userid")
+          Alert.alert('', "הודעת שגיאה: זהו לא המזהה הנכון",[,,{text:"אישור"}])
         }
        }
       else{
@@ -95,7 +95,7 @@ const pickImageCamera = async()=>{//pick image we want to upload from library
         handleImagePicked(result);
       }
       else {
-        alert("error - not userid")
+        Alert.alert('', "הודעת שגיאה: זהו לא המזהה הנכון",[,,{text:"אישור"}])
       }
     }
     else{

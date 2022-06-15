@@ -71,7 +71,7 @@ const FormGiver = ({navigation,route}) => {
     }
   };
 
-  const pickImageCamera = async()=>{//pick image we want to upload from library
+  const pickImageCamera = async()=>{//pick image we want to upload from camera
     // ask the user for the permission to access camera 
     const cameraStatus = await ImagePicker.requestCameraPermissionsAsync();
     if(cameraStatus.granted === false) {
@@ -94,7 +94,7 @@ const FormGiver = ({navigation,route}) => {
           handleImagePicked(result);
         }
         else {
-          alert("error - not userid")
+          Alert.alert('', "הודעת שגיאה: זהו לא המזהה הנכון",[,,{text:"אישור"}])
         }
       }
       else{
