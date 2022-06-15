@@ -1,344 +1,347 @@
-import DropDownPicker from 'react-native-dropdown-picker';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import React, { useState, useEffect } from 'react'
-import {auth, db} from '../FirebaseConfig';
-
 import { 
         View, 
         Text, 
         StyleSheet,
         TouchableOpacity, 
         Switch,
-        Platform,
-        Button,
+        Alert,
         Image,
+        StatusBar,
+        TextInput,
     } from 'react-native';
-import { TextInput } from 'react-native-paper';
+import DropDownPicker from 'react-native-dropdown-picker';
+import React, { useState, useEffect } from 'react'
+import {auth, db,storage} from '../FirebaseConfig';
+import { color,inputGiver } from '../utils';
 import { ScrollView } from 'react-native-gesture-handler';
 import * as Location from 'expo-location';
 import * as ImagePicker from 'expo-image-picker';
 
-const FormGiver = ({navigation}) => {
-  const [desription, setDescription] =  useState('');
-  const [amountKg, setAmountKg] =  useState('');
-  const [date, setDate] = useState(new Date());
-  const [mode, setMode] = useState('date');
+const FormGiver = ({navigation,route}) => {
+ 
+  const [image, setImage] = useState(null)
+  const [imageUrl, setImageUrl] = useState(null)
+  const [progress, setProgress] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
   const [show, setShow] = useState(false);
-  const [time, setTime] = useState('');
-  const [location, setLocation] = useState('');
-  // const [image, setImage] = useState(null);
-  // const pickImage = async () => {
-  //   // No permissions request is necessary for launching the image library
-  //   let result = await ImagePicker.launchImageLibraryAsync({
-  //     mediaTypes: ImagePicker.MediaTypeOptions.All,
-  //     allowsEditing: true,
-  //     aspect: [4, 3],
-  //     quality: 1,
-  //   });
+  const [description, setDescription] =  useState('');
+  const [amountKg, setAmountKg] =  useState('');
+  const [location, setLocation] = useState(''); 
+  const [locationLat, setLocationLat] = useState(null);
+  const [locationLon, setLocationLon] = useState(null);
+  const [isEnabled, setIsEnabled] = useState(false);
 
-  //   console.log(result);
-
-  //   if (!result.cancelled) {
-  //     setImage(result.uri);
-  //   }
-  // }
-  const onChange = (event, selectedDate) => {
-    const currentDate = selectedDate || date;
-    setShow(Platform.OS === 'ios');
-    setDate(currentDate);
-    let tempDate = new Date(currentDate)
-    let fDate = 'תאריך: ' + tempDate.getDate() + '/' + (tempDate.getMonth()+1)+'/'+ tempDate.getFullYear(); 
-    let fTime;
-    if( tempDate.getMinutes() == 0 && tempDate.getHours() == 0 ){
-      fTime = 'שעה: 0'+ tempDate.getHours() + ':0' + tempDate.getMinutes();
+  const pickImageGallery = async () => {//pick image we want to upload from library
+    // ask the user for the permission to access the media library 
+    const galleryStatus = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if(galleryStatus.granted === false) {
+      Alert.alert("","הודעת שגיאה: סירבת לאפליקציה הזו לגשת לתמונות שלך, עליך לשנות זאת ולאפשר גישה על מנת להמשיך",[,,{text:"אישור"}]);
+      return;
     }
-    else if(tempDate.getMinutes() > 0 && tempDate.getMinutes() < 10 ){
-      if(tempDate.getHours() == 0){
-        fTime = 'שעה: 0'+ tempDate.getHours() + ':0' + tempDate.getMinutes();
 
-      }
-      if( tempDate.getHours() > 9 && tempDate.getHours() < 25) {
-        fTime = 'שעה: '+ tempDate.getHours() + ':0' + tempDate.getMinutes();
-      }
-      else if(tempDate.getHours()>0 && tempDate.getHours() < 10){
-        fTime = 'שעה: ' + '0'+ tempDate.getHours() + ':0' + tempDate.getMinutes();
-      }
-    }
-    else{
-      if(tempDate.getHours() == 0){
-        fTime = 'שעה: 0'+ tempDate.getHours() + ':' + tempDate.getMinutes();
-      }
-      else if( tempDate.getHours() > 9 && tempDate.getHours() < 25) {
-        if(tempDate.getMinutes() > 9)
-         fTime = 'שעה: ' + tempDate.getHours() + ':' + tempDate.getMinutes();
+    let result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.All,
+          allowsEditing: true,
+          aspect: [4, 4],
+          quality: 1
+      });
+      // console.log("just picking... "); 
+      if (!result.cancelled){ //the user choose image
+        if(auth.currentUser){
+          const userid = auth.currentUser.uid;
+          if (userid) {
+            setIsUploading(true);
+            setShow(true)
+            setImageUrl(result.uri)
+            handleImagePicked(result);
+          } 
         else {
-          fTime = 'שעה: ' + tempDate.getHours() + ':0' + tempDate.getMinutes();
-
+          Alert.alert('', "הודעת שגיאה: זהו לא המזהה הנכון",[,,{text:"אישור"}])
         }
+       }
+      else{
+        Alert.alert('', "הודעת שגיאה: זהו אינו משתמש פעיל במערכת",[,,{text:"אישור"}])
       }
-      else if ( tempDate.getHours() > 1 && tempDate.getHours() < 10) {  
-        if(tempDate.getMinutes < 10)
-        fTime = 'שעה: 0' + tempDate.getHours() + ':' + tempDate.getMinutes();
-        else if (tempDate.getMinutes() == 0){
-         
-          alert("yhnj")
-          fTime = 'שעה: 0' + tempDate.getHours() + ':0' + tempDate.getMinutes();
-        }
-        else{
-          // console.log(tempDate.getMinutes())
-                  fTime = 'שעה: 0' + tempDate.getHours() + ':' + tempDate.getMinutes();
+    }
+      else{
+        Alert.alert('', "הודעת שגיאה: יצאת מבלי לבחור תמונה מהגלריה",[,,{text:"אישור"}])
+        setImage(null)
+        setImageUrl(null)  
+        setShow(false)
+    }
+  };
 
+  const pickImageCamera = async()=>{//pick image we want to upload from library
+    // ask the user for the permission to access camera 
+    const cameraStatus = await ImagePicker.requestCameraPermissionsAsync();
+    if(cameraStatus.granted === false) {
+      Alert.alert("","הודעת שגיאה: סירבת לאפליקציה הזו לגשת למצלמה שלך, עליך לשנות זאת ולאפשר גישה על מנת להמשיך",[,,{text:"אישור"}]);
+      return;
+    }
+    let result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      // aspect: [4, 3],
+    });
+    // console.log("taking a photo");
+    if (!result.cancelled){ //if user chosen and didnt exit
+      if(auth.currentUser){
+        const userid = auth.currentUser.uid;
+        // alert(userid)
+        if (userid) {
+          setIsUploading(true);
+          setShow(true)
+          setImageUrl(result.uri)
+          handleImagePicked(result);
+        }
+        else {
+          alert("error - not userid")
         }
       }
       else{
-               fTime = 'שעה: ' + tempDate.getHours() + ':' + tempDate.getMinutes();
-
+        Alert.alert('', "הודעת שגיאה: זהו אינו משתמש פעיל במערכת",[,,{text:"אישור"}])
       }
-    }
+      
+      } 
+      else{
+      Alert.alert('', "הודעת שגיאה: יצאת מבלי לבחור תמונה מהמצלמה",[,,{text:"אישור"}])
+      setImage(null)   
+      setImageUrl(null) 
+      setShow(false)
   
-    setTime(fDate +' , '+ fTime)
-    console.log(fDate + ' (' + fTime + ')')
-    };
- 
-  const showMode = (currentMode) => {
-    setShow(true);
-    setMode(currentMode);
-  };
-  // const showDatepicker = () => {
-  //   showMode('date');
-  // };
-
-  // const showTimepicker = () => {
-  //   showMode('time');
-  // };
-  
-  // const [setShowComponent, showComponent] = useState(false)
-
-  // const check = ()=>{
-
-  //   if (isEnabled){
-  //     alert("true")
-  //     setTextP("המיקום הנוכחי הוא:" + locationLat + ','+ locationLon)
-      
-  //     // setShowComponent(true)
-  //   }
-  //    else{    
-  //     // alert("false")
-  //     setTextP("")
-  //     // setShowComponent(false)
-  //   }
-  // }
-
-    
-  const [locationLat, setLocationLat] = useState(null);
-  const [locationLon, setLocationLon] = useState(null);
-
-  const [errorMsg, setErrorMsg] = useState(null);
-
-  useEffect(() => {
-    (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        setErrorMsg('Permission to access location was denied');
-        return;
-      }
-
-      let location = await Location.getCurrentPositionAsync({});
-      let address = await Location.reverseGeocodeAsync(location.coords)
-      console.log(location.coords.latitude,location.coords.longitude)
-      // setLocation(location.coords.latitude,  location.coords.longitude);
-      setLocationLat(location.coords.latitude)
-      setLocationLon(location.coords.longitude)
-      
-    })();
-  }, []);
-
-  // let text = 'Waiting..';
-  // if (errorMsg) {
-  //   text = errorMsg;
-  // } else if (location) {
-  //   text = JSON.stringify(location);
-  //   console.log(text)
-  // }
-  const [isEnabled, setIsEnabled] = useState(false);
-  const toggleSwitch = () => {
-    setIsEnabled(previousState => !previousState)
-    if (!isEnabled){
-      alert("true")
-      setLocation("המיקום הנוכחי הוא: " + locationLat + ','+ locationLon)
-      
-      // setShowComponent(true)
-    }
-     else{    
-      // alert("false")
-      setLocation("")
-      // setShowComponent(false)
-    }
-    };
-  const [openCato, setOpenCato] = useState(false);
-  const [valueCa, setValueCa] = useState('');
-  const [itemCato, setItemCato] = useState([
-    {label: 'סיטונאי', value: 'סיטונאי'},
-    {label: 'קמעונאי', value: 'קמעונאי'},
-    {label: 'מסעדה', value: 'מסעדה'},
-    {label: 'מלון', value: 'מלון'},
-    {label: 'מקום מפגש', value: 'מקום מפגש'},
-    {label: 'חברת קייטרינג', value: 'חברת קייטרינג'},
-    {label: 'חקלאי', value: 'חקלאי'},
-    {label: 'קואופרטיב חקלאי', value: 'קוטופרטיב חקלאי'},
-    {label: 'סופרמרקט', value: 'סופרמרקט'},
-    {label: 'יצרן', value: 'יצרן'},
-    {label: 'מאפיה', value: 'מאפיה'},
-    {label: 'בניין משרדים', value: 'בניין משרדים'},
-    {label: 'בית ספר', value: 'בית ספר'},
-    {label: 'מכולת', value: 'מכולת'}
-  ]);
-  const [openTags, setOpenTags] = useState(false);
-  const [valueTags, setValueTags] = useState([]);
-  const [itemTags, setItemTags] = useState([
-    {label: 'כשרות רגילה', value: 'כשרות רגילה'},
-    {label: 'כשרות בד"ץ', value: 'כשרות בדץ'},
-    {label: 'טבעוני', value: 'טבעוני'},
-    {label: 'חלבי', value: 'חלבי'},
-    {label: 'בשרי', value: 'בשרי'},
-    {label: 'גלם', value: 'גלם'},
-    {label: 'חלאל', value: 'חלאל'},
-    {label: 'צמחוני', value: 'צמחוני'},    
-    {label: 'תוצרת בית', value: 'תוצרת בית'},
-    {label: 'גורמה', value: 'גורמה'},
-    {label: 'חטיפים', value: 'חטיפים'},
-    {label: 'אוכל מהיר', value: 'אוכל מהיר'},
-    {label: 'בריא', value: 'בריא'},
-    {label: 'מזון על', value: 'מזון על'},
-    {label: 'משקאות', value: 'משקאות'},
-    
-]);
-const [openStatus, setOpenStatus] = useState(false);
-const [valueStatus, setValueStatus] = useState([]);
-const [itemStatus, setItemStatus] = useState([
-  {label: 'חברה בע"מ', value: 'חברה בע"מ'},
-  {label: 'עוסק מורשה/פטור', value: 'עוסק מורשה/פטור'},
-  {label: 'עמותה', value: 'עמותה'},
-  {label: 'מתנדב', value: 'מתנדב'},
-
-]);
-const [openTypeFood, setOpenTypeFood] = useState(false);
-const [valueTypeFood, setValueTypeFood] = useState([]);
-const [itemTypeFood, setItemTypeFood] = useState([
-  {label: 'פירות טריים וירקות', value: 'פירות טריים וירקות'},
-  {label: 'מוצרים ארוזים יבשים', value: 'מוצרים ארוזים יבשים'},
-  {label: 'מנות מבושלות', value: 'מנות מבושלות'},
-  {label: 'אוכל אצבעות', value: 'אוכל אצבעות'},
-  {label: 'מוצרים בקירור שפג תוקפם', value: 'מוצרים בקירור שפג תוקפם'},
-  {label: 'סלטים', value: 'סלטים'},
-  {label: 'ארוחות ארוזות', value: 'ארוחות ארוזות'},
-  {label: 'משקאות', value: 'משקאות'},
-  {label: 'ממתקים וקינוחים', value: 'ממתקים וקינוחים'},
-  {label: 'כריכים', value: 'כריכים'},
-  {label: 'לחם ואפייה', value: 'לחם ואפייה'},
-  {label: 'הכל', value: 'הכל'}
-
-]);
-
-const [openTimePick, setOpenTimePick] = useState(false);
-const [valueTimePick, setValueTimePick] = useState([]);
-const [itemTimePick, setItemTimePick] = useState([
-  {label: 'ראשון', value: 'ראשון'},
-  {label: 'שני', value: 'שני'},
-  {label: 'שלישי', value: 'שלישי'},
-  {label: 'רביעי', value: 'רביעי'},
-  {label: 'חמישי', value: 'חמישי'},
-  {label: 'שישי', value: 'שישי'},
-  {label: 'שבת', value: 'שבת'},
-  {label: 'חגים יהודיים', value: 'חגים יהודיים'},
-  {label: 'חגים נוצריים', value: 'חגים נוצריים'},
-  {label: 'חגים מוסלמים', value: 'חגים מוסלמים'},
-  {label: 'מידי פעם', value: 'מידי פעם'}
-
-]);
-
-const [opeמWhen, setOpenWhen] = useState(false);
-const [valueWhen, setValueWhen] = useState([]);
-const [itemWhen, setItemWhen] = useState([
-  {label: '3 שעות ', value: '3'},
-  {label: '6 שעות ', value: '6'},
-  {label: '12 שעות ', value: '12'},
-  {label: '24 שעות ', value: '24'},
-  {label: '48 שעות ', value: '48'},
-]);
-const handleSignUpCon = () =>{
-  if (auth.currentUser) {
-    const userid = auth.currentUser.uid;
-
-   if (userid) {
-      //  db.ref('users/'+userid).update({ //שם הכל ביחד עם התכונות של השאלון לאותו משתמש
-        db.ref('users/'+userid+'/Form').set({// מפריד את תכונות השאלון לקטגוריה נפרדת
-            desription: desription,
-            catogary: valueCa,
-            tags: valueTags,
-            status : valueStatus,
-            typeFood: valueTypeFood,
-            timePick: valueTimePick,
-            when: valueWhen,
-            location: location,
-            Time : time,
-            amount : amountKg,
-            // email: email,
-            // phone: phone, 
-            // password: password,
-            // type:checked,
-            
-       })
-       navigation.navigate('SignInScreen')           
-
     }
   }
+
+const handleImagePicked = async (pickerResult) => {//handle functin to upload the chosen image to firebase
+  try {
+    const uploadUrl = await uploadImageAsync(pickerResult.uri);
+  } catch (e) {
+    console.log(e);
+    Alert.alert('', "הודעת שגיאה: העלאת התמונה נכשלה, אנא נסה שנית",[,,{text:"אישור"}])
+  } finally {
+    setIsUploading(false);
+    console.log('Upload succeed');
+  }
+};
+
+const uploadImageAsync =  async(uri) =>{ // upload the image to storage firebase,the name saving as userid 
+  const userid = auth.currentUser.uid;
+  if (!userid) {
+    Alert.alert('', "הודעת שגיאה: זהו אינו משתמש פעיל במערכת",[,,{text:"אישור"}])
+  }
+  const blob = await new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.onload = function() {
+      resolve(xhr.response);
+    };
+    xhr.onerror = function(e) {
+      console.log(e);
+      reject(new TypeError('Network request failed'));
+    };
+    xhr.responseType = 'blob';
+    xhr.open('GET', uri, true);
+    xhr.send(null);
+  });
+
+  const uploadTask =  storage.ref('images/').child(userid).put(blob)
+  uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+    
+          // Monitor uploading progress
+          onProgress && onProgress(Math.fround(progress).toFixed(2));
+        },
+        (error) => {
+          // Something went wrong -  error response
+          console.log(error)
+          setIsUploading(false);
+
+        },
+        () => {
+               // Upload completed successfully, now we can get the download URL
+               uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+                 setImage(downloadURL);// set url in image state to update in db firebase too
+                 console.log("File available at", downloadURL);
+               });
+             }
+  )
+       
 }
+
+const onProgress = (progress) => {
+  setProgress(progress);
+};
+
+const toggleSwitch = () => { //toggle for location + validation
+  setIsEnabled(previousState => !previousState)
+  if (!isEnabled){
+    if(locationLat===null || locationLon===null ){
+      Alert.alert('', "הודעת שגיאה: עליך לאשר הרשאות גישה למיקום על מנת להמשיך",[,,{text:"אישור"}])
+      setLocation("")
+      setIsEnabled(false)
+    }
+    else{
+      setLocation("המיקום הנוכחי הוא: " + locationLat + ','+ locationLon)
+    }
+  }
+  else{    
+      setLocation("")
+  }
+};
+
+//catogary
+const [openCato, setOpenCato] = useState(false);
+const [valueCa, setValueCa] = useState('');
+const [itemCato, setItemCato] = useState(inputGiver.catogary);
+
+//tags
+const [openTags, setOpenTags] = useState(false);
+const [valueTags, setValueTags] = useState([]);
+const [itemTags, setItemTags] = useState(inputGiver.tags);
+  
+//status
+const [openStatus, setOpenStatus] = useState(false);
+const [valueStatus, setValueStatus] = useState([]);
+const [itemStatus, setItemStatus] = useState(inputGiver.status);
+
+//types food 
+const [openTypeFood, setOpenTypeFood] = useState(false);
+const [valueTypeFood, setValueTypeFood] = useState([]);
+const [itemTypeFood, setItemTypeFood] = useState(inputGiver.typeFood);
+  
+//time options to pick up the food
+const [openTimePick, setOpenTimePick] = useState(false);
+const [valueTimePick, setValueTimePick] = useState([]);
+const [itemTimePick, setItemTimePick] = useState(inputGiver.timePick);
+
+//times in hours
+const [openTime, setOpenTime] = useState(false);
+const [valueTime, setValueTime] = useState([]);
+const [itemTime, setItemTime] = useState(inputGiver.timeHours);
+  
+//within a few hours the food should be collected
+const [openWhen, setOpenWhen] = useState(false);
+const [valueWhen, setValueWhen] = useState([]);
+const [itemWhen, setItemWhen] = useState(inputGiver.when);
+
+useEffect(() => {
+  let unmounted = false
+  // console.log("ruuning effect to fetch data")
+  setTimeout(()=>{
+  // console.log("data loaded for page" )
+  if(!unmounted){
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if(status !== "granted"){
+        Alert.alert('',"סירבת לאפליקציה הזו לגשת למיקום שלך, עליך לשנות זאת ולאפשר גישה על מנת להמשיך",[,,{text:"אישור"}]);
+          return;
+      }
+      let location = await Location.getCurrentPositionAsync();
+      setLocationLat(location.coords.latitude)
+      setLocationLon(location.coords.longitude)
+
+    })();}},3000)
+  return()=>{
+    unmounted = true
+  } 
+}, []);
+
+const handleSignUpCon = () =>{ //before continue, check validation + put the information fields in firebase
+  
+  if(valueCa == "" || valueTags == "" ||valueStatus == "" || valueTime == "" || valueTimePick == "" || valueTypeFood == ""|| valueWhen == "" || amountKg==""){
+    Alert.alert('', "הודעת שגיאה: כל השדות הינן שדות חובה, אנא מלא את כולן",[,,{text:"אישור"}])
+    return;
+  }
+
+  if (image === null || imageUrl === null){
+    Alert.alert('', "הודעת שגיאה: העלאת תמונה הינה חובה",[,,{text:"אישור"}])
+    return;
+  }
+  if(amountKg === '0'|| amountKg[0] === '0' || amountKg.includes('.') || amountKg.includes('-')){
+    Alert.alert('', "הודעת שגיאה: כמות האוכל אינה יכולה להיות תווים שאינם מספרים, שווה ל-0 או להתחיל ב-0, אנא תשנה ונסה שנית",[,,{text:"אישור"}])
+    return;
+  }
+  if(locationLat === null || locationLon === null || isEnabled == false){
+    Alert.alert('', "הודעת שגיאה: מיקום נוכחי הינו שדה חובה",[,,{text:"אישור"}])    
+    return;
+  }
+  if (auth.currentUser) {
+    const userid = auth.currentUser.uid;
+    if (userid) {
+        //  db.ref('users/'+userid).update({ //שם הכל ביחד עם התכונות של השאלון לאותו משתמש
+          db.ref('users/'+userid).update({
+            image:image
+          }) .catch((error) => {
+              console.log(error.message);
+          });
+          db.ref('users/'+userid+'/Form').set({// מפריד את תכונות השאלון לקטגוריה נפרדת
+              description: description,
+              catogary: valueCa,
+              tags: valueTags,
+              status : valueStatus,
+              typeFood: valueTypeFood,
+              timePick: valueTimePick,
+              when: valueWhen,
+              location: location,
+              Time : valueTime,
+              amount : amountKg,
+              latitude: locationLat,
+              longitude: locationLon,
+        }).catch((error) => {
+          console.log(error.message);
+        });
+        
+        let type = 'giver'
+        navigation.navigate('Tabs',{type} )           
+
+      }
+    }
+  }
 
   return (
    <ScrollView> 
-        
-    <View style={{ paddingTop:20, margin:20,}}>
-        <Text  style={{marginVertical:10}}>תיאור קצר</Text>
-    <View>
-      <TextInput
-      value={desription}
-      onChangeText={(desription) => setDescription(desription)}
-      placeholder="הסבר קצר על הארגון"
-      style = {Styles.textInput}
-      multiline={true}
-      selectionColor={"black"}
-      autoFocus ={true}
-      activeUnderlineColor="white"
-      underlineColor='white'
-     />
-     
-     <Text  style={{marginVertical:20}}>קטגוריה</Text>
-     {/* <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Button title="Pick an image from camera roll" onPress={pickImage} />
-      {image && <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />}
-    </View> */}
-    <DropDownPicker 
-      open={openCato}
-      value={valueCa}
-      items={itemCato}
-      setOpen={setOpenCato}
-      setValue={setValueCa}
-      setItems={setItemCato}
-      zIndex={3000}
-      zIndexInverse={1000}
-      placeholder= {'אנא בחר את הקטגוריה המתאימה'} 
-      listMode="SCROLLVIEW"
-        scrollViewProps={{
-          nestedScrollEnabled: true,
-      }}
-        closeAfterSelecting={true}
-    ></DropDownPicker>
-    </View>
-   
-    <Text  style={{marginVertical:20}}>תגים</Text>
-
-    <View>
+   <StatusBar barStyle="dark-content" backgroundColor={color.TURQUOISE} />
+        <View style={styles.container}>
+        <Text  style={{marginVertical:15,writingDirection:'rtl',}}>תיאור קצר</Text> 
+        <TextInput
+        value={description}
+        onChangeText={(description) => setDescription(description)}
+        placeholder="הסבר קצר על הארגון"
+        style = {styles.textInput}
+        multiline={true}
+        autoFocus ={true}
+        selectionColor={color.BLACK}
+        activeUnderlineColor={color.WHITE}
+        underlineColor={color.WHITE}
+      />
+      <Text  style={{marginVertical:20,writingDirection:'rtl'}}>קטגוריה</Text>
+      <DropDownPicker 
+        open={openCato}
+        value={valueCa}
+        items={itemCato}
+        setOpen={setOpenCato}
+        setValue={setValueCa}
+        setItems={setItemCato}
+        labelStyle={{textAlign:'left'}}
+        selectedItemContainerStyle={{direction:'rtl'}}
+        listItemLabelStyle={{
+          textAlign:"left",
+          direction:'rtl',
+        }}
+        placeholderStyle={{textAlign:'left',}}
+        style = {{direction:'rtl' }}
+        dropDownContainerStyle={{
+          position: 'relative',
+          top:0,
+        }}
+        placeholder= {'אנא בחר את הקטגוריה המתאימה'} 
+        listMode="SCROLLVIEW"
+          scrollViewProps={{
+            nestedScrollEnabled: true,
+        }}
+        closeAfterSelecting={true}></DropDownPicker>
+      <Text  style={{marginVertical:20,writingDirection:'rtl'}}>תגים</Text>
       <DropDownPicker 
         open={openTags}
         value={valueTags}
@@ -347,54 +350,60 @@ const handleSignUpCon = () =>{
         setValue={setValueTags}
         setItems={setItemTags}
         multiple={true}
-        multipleText="תודה שבחרת את התגים המתאימים"
         listMode="SCROLLVIEW"
           scrollViewProps={{
             nestedScrollEnabled: true,
         }}
-        // onChangeItem={itemsI => setValues(itemsI.value)}
-        placeholder= {'אנא בחר את התגים המתאימים'}
-        zIndex={2000}
-        zIndexInverse={2000}
-        onChangeValue={(item) => {
-          console.log("selected value",item);
-          
+        labelStyle={{textAlign:'left'}}
+        selectedItemContainerStyle={{direction:'rtl'}}
+        listItemLabelStyle={{
+          textAlign:"left",
+          direction:'rtl',
         }}
+        placeholderStyle={{textAlign:'left',}}
+        style = {{direction:'rtl' }}
+        dropDownContainerStyle={{
+          position: 'relative',
+          top:0,
+        }}
+        mode= 'BADGE'
+        placeholder= {'אנא בחר את התגים המתאימים'}></DropDownPicker>
+      <Text  style={{marginVertical:20,writingDirection:'rtl'}}>סטטוס</Text>
+      <DropDownPicker 
+        open={openStatus}
+        value={valueStatus}
+        items={itemStatus}
+        setOpen={setOpenStatus}
+        setValue={setValueStatus}
+        setItems={setItemStatus}
+        dropDownContainerStyle={{
+          position: 'relative',
+          top:0,
+        }}
+        labelStyle={{textAlign:'left'}}
+        selectedItemContainerStyle={{direction:'rtl'}}
+        listItemLabelStyle={{
+          textAlign:"left",
+          direction:'rtl',
+        }}
+        placeholderStyle={{textAlign:'left',}}
+        style = {{direction:'rtl' }}
+        placeholder= {'אנא בחר את הסטטוס'}    
+        closeAfterSelecting={true}
+        listMode="SCROLLVIEW"
+        scrollViewProps={{
+          nestedScrollEnabled: true,}}></DropDownPicker>
+          <Text  style={{fontSize:20, margin:20,textAlign:'center'}}>ההצעה שלך</Text>
+          <Text  style={{writingDirection:'rtl',}}>צרף תמונה להמחשת ההצעה</Text>
+      <View style={{ flexDirection: "column", alignItems:'center',justifyContent:'center',marginVertical:20,}}>
 
-        // onSelectItem ={(item) => {
-        //   console.log("selected value",item[0].label);
-        //   // console.log("selected Index",index);
-        // }}
-       
-        // onChangeItem={item =>({ currency: item.value })}
-
-     ></DropDownPicker>
-    </View>
-    <Text  style={{marginVertical:20}}>סטטוס</Text>
-
-    <View>
-    <DropDownPicker 
-      open={openStatus}
-      value={valueStatus}
-      items={itemStatus}
-      setOpen={setOpenStatus}
-      setValue={setValueStatus}
-      setItems={setItemStatus}
-      zIndex={1000}
-      zIndexInverse={3000}
-      placeholder= {'אנא בחר את הסטטוס'}    
-      closeAfterSelecting={true}
-      listMode="SCROLLVIEW"
-      scrollViewProps={{
-        nestedScrollEnabled: true,
-      }}
-      
-    ></DropDownPicker>
-        <Text  style={{fontSize:20, margin:20,textAlign:'center'}}>ההצעה שלך</Text>
-        <Text  style={{marginVertical:20}}>צרף תמונה להמחשת ההצעה</Text>
-        <Text  style={{ marginVertical:20}}>סוג האוכל</Text>
-
-       
+      <TouchableOpacity style={styles.imageButton} onPress={pickImageCamera}><Text style = {{fontSize: 15, color:color.BLACK}}>תמונה מהמצלמה</Text></TouchableOpacity> 
+      <TouchableOpacity style={styles.imageButton} onPress={pickImageGallery}><Text style = {{fontSize: 15, color:color.BLACK}}>תמונה מהגלריה</Text></TouchableOpacity> 
+      {imageUrl && <Image source={{uri:imageUrl}} style = {{ width:100, height:100,borderRadius:15,marginTop:5 }} />}</View>  
+      <View style={{display: show ? "flex": "none",alignSelf:'center'} }>
+          <Text> מעלה {progress} מתוך 100% </Text>
+      </View>  
+      <Text  style={{ marginBottom:20,writingDirection:'rtl'}}>סוג האוכל</Text>
         <DropDownPicker 
         open={openTypeFood}
         value={valueTypeFood}
@@ -403,35 +412,39 @@ const handleSignUpCon = () =>{
         setValue={setValueTypeFood}
         setItems={setItemTypeFood}
         multiple={true}
-        multipleText="תודה שבחרת"
+        dropDownContainerStyle={{
+          position: 'relative',
+          top:0,
+        }}
+        mode= 'BADGE'
+        placeholder= {'אנא בחר את סוג האוכל המתאים'}
+        labelStyle={{textAlign:'left'}}
+        selectedItemContainerStyle={{direction:'rtl'}}
+        listItemLabelStyle={{
+          textAlign:"left",
+          direction:'rtl',
+        }}
+        placeholderStyle={{textAlign:'left',}}
+        style = {{direction:'rtl' }}
         listMode="SCROLLVIEW"
           scrollViewProps={{
             nestedScrollEnabled: true,
-        }}
-        // onChangeItem={itemsI => setValues(itemsI.value)}
-        placeholder= {'אנא בחר את סוג האוכל המתאים'}
-        zIndex={3000}
-        zIndexInverse={1000}
-      
-     ></DropDownPicker>
-      <Text  style={{ marginVertical:20}}>כמות האוכל? (בק"ג)</Text>
+        }}></DropDownPicker>
+      <Text  style={{ marginVertical:20,writingDirection:'rtl'}}>כמות האוכל? (בק"ג)</Text>
 
-     <TextInput
-        value={amountKg}
-        onChangeText={(amountKg) => setAmountKg(amountKg)}
-        placeholder="אנא הזן מספר"
-        keyboardType="numeric"
-        autoCapitalize="none"
-        autoCorrect={false}
-        style = {[Styles.textInput,{height:45,},]}
-        activeUnderlineColor="white"
-        underlineColor='white'
-        //   ={true}
-        // underlineColorAndroid={"transparent"}
-        selectionColor={"black"}
-
-      />
-      <Text  style={{ marginVertical:20}}>יום איסוף</Text>
+      <TextInput
+          value={amountKg}
+          onChangeText={(amountKg) => setAmountKg(amountKg)}
+          placeholder="אנא הזן מספר"
+          keyboardType="numeric"
+          autoCapitalize="none"
+          autoCorrect={false}
+          style = {styles.textInput}
+          activeUnderlineColor={color.WHITE}
+          underlineColor={color.WHITE}
+          selectionColor={color.BLACK}
+        />
+      <Text  style={{ marginVertical:20,writingDirection:'rtl'}}>יום איסוף</Text>
       < DropDownPicker
         open={openTimePick}
         value={valueTimePick}
@@ -439,151 +452,156 @@ const handleSignUpCon = () =>{
         setOpen={setOpenTimePick}
         setValue={setValueTimePick}
         setItems={setItemTimePick} 
-        zIndex={2000}
-        zIndexInverse={2000}
+        dropDownContainerStyle={{
+          position: 'relative',
+          top:0,
+        }}
+        labelStyle={{textAlign:'left'}}
+        selectedItemContainerStyle={{direction:'rtl'}}
+        listItemLabelStyle={{
+          textAlign:"left",
+          direction:'rtl',
+        }}
+        placeholderStyle={{textAlign:'left',}}
+        style = {{direction:'rtl' }}
         multiple = {true}
-        multipleText="תודה שבחרת"
+        mode = 'BADGE'
         placeholder= {'אנא בחר יום איסוף'} 
         listMode="SCROLLVIEW"
           scrollViewProps={{
             nestedScrollEnabled: true,
-      }}
-        // closeAfterSelecting={true}
-   > 
-   </DropDownPicker>
-      {/* <TextInput 
-        style = {[Styles.textInput,{height:45,},]}
-        placeholder="אנא בחר זמן מתאים"
-      ></TextInput> */}
-        <Text  style={{ marginVertical:20}}>יש לצרוך עד</Text>
-
-      < DropDownPicker
-        open={opeמWhen}
+      }}> </DropDownPicker>
+    
+      <Text  style={{ marginVertical:20,writingDirection:'rtl'}}>יש לצרוך עד</Text>
+      <DropDownPicker
+        open={openWhen}
         value={valueWhen}
         items={itemWhen}
         setOpen={setOpenWhen}
         setValue={setValueWhen}
         setItems={setItemWhen} 
-        zIndex={1000}
-        zIndexInverse={3000}
-        multipleText="תודה שבחרת"
+        labelStyle={{textAlign:'left'}}
+        selectedItemContainerStyle={{direction:'rtl'}}
+        listItemLabelStyle={{
+          textAlign:"left",
+          direction:'rtl',
+        }}
+        placeholderStyle={{textAlign:'left',}}
+        style = {{direction:'rtl' }}
+        dropDownContainerStyle={{
+          position: 'relative',
+          top:0,
+        }}
         placeholder= {'אנא בחר תוך כמה זמן יש לצרוך את האוכל'} 
         listMode="SCROLLVIEW"
           scrollViewProps={{
             nestedScrollEnabled: true,
-      }}></DropDownPicker>
-    <Text  style={{ marginVertical:20}}>הזמן הכי טוב לאיסוף</Text>
-
-     <View style={{ flexDirection: "row", justifyContent:'center',margin:10,}}>
-    <TouchableOpacity style={Styles.conTime} onPress={()=> showMode('date')}><Text style = {{color:'#009387',fontSize: 17}}>בחר תאריך</Text></TouchableOpacity>
-    
-      
-    <TouchableOpacity style={Styles.conTime} onPress={()=> showMode('time')}><Text style = {{color:'#009387',fontSize: 17}}>בחר זמן</Text></TouchableOpacity> 
-        {show && (
-          <DateTimePicker
-          testID="dateTimePicker"
-          value={date}
-          mode={mode}
-            is24Hour={true}
-            // format="DD-MM-YYYY"
-            
-            display="default"
-            onChange={onChange}
-            />
-            )}
-      </View>
-
-            <Text>{time}</Text>
-
-      <Text  style={{marginVertical:20}}>מיקום</Text>
-      <View style = {{}}>
-      <TextInput
-      placeholder="הכנס את הכתובת המלאה שלך או שתלחץ 'השתמש במיקום הנוכחי שלי'"
-      style = {Styles.textInput}
-      multiline={true}
-      selectionColor={"black"}
-      // autoFocus ={true}
-      activeUnderlineColor="white"
-      underlineColor='white'
-      // value={()=>check()}
-     />
-     
-     </View> 
-    
-      <View style = {{flexDirection:'row',  justifyContent:'flex-start',}}>
-      <Text style = {{marginVertical:20,}}>
-        השתמש במיקום הנוכחי שלי:  </Text>
-         <Switch
-          trackColor={{ false: "#767577", true: "#78CECC" }}
-          thumbColor={isEnabled ? "#009387" : "#f4f3f4"}
+      }}> </DropDownPicker>
+      <Text  style={{ marginVertical:20,writingDirection:'rtl'}}>הזמן הכי טוב לאיסוף, בין השעות:</Text>
+      <DropDownPicker 
+        open={openTime}
+        value={valueTime}
+        items={itemTime}
+        setOpen={setOpenTime}
+        setValue={setValueTime}
+        setItems={setItemTime}
+        multiple={true}
+        mode = 'BADGE'
+        dropDownContainerStyle={{
+          position: 'relative',
+          top:0,
+        }}
+        labelStyle={{textAlign:'left'}}
+        selectedItemContainerStyle={{direction:'rtl'}}
+        listItemLabelStyle={{
+          textAlign:"left",
+          direction:'rtl',
+        }}
+        placeholderStyle={{textAlign:'left',}}
+        style = {{direction:'rtl' }}
+        placeholder= {'אנא בחר את הזמן הרצוי'}    
+        closeAfterSelecting={true}
+        listMode="SCROLLVIEW"
+        scrollViewProps={{
+          nestedScrollEnabled: true,
+        }}></DropDownPicker>
+      <View style = {{flexDirection:'column',alignItems:'center',justifyContent:'center'}}>
+        <Text style = {{marginTop:20,writingDirection:'rtl',marginBottom:10}}>
+          השתמש במיקום הנוכחי שלי:  </Text>
+          <Switch
+          trackColor={{ false: "#767577", true: color.TURQUOISE1 }}
+          thumbColor={isEnabled ? color.TURQUOISE : "#f4f3f4"}
           ios_backgroundColor="#3e3e3e"
-          onValueChange={()=> toggleSwitch()}
+          onValueChange={toggleSwitch}
           value={isEnabled}
-          
-          // style = {{flexDirection:"row"}}
-      />
-
-    </View>
-    <Text>
+          style = {styles.toggle}
+        />
+      </View>
+      <Text style = {{writingDirection:'rtl', textAlign:'center',marginVertical:10}}>
      {location}
-    </Text>
-      {/* <Text>
-      המיקום הנוכחי הוא: {locationLat},{locationLon}
-    </Text> */}
+     </Text>
+      </View>
+      <View style = {{ alignItems:'center'}}>
+      <TouchableOpacity onPress={handleSignUpCon} style={styles.conTouch} >
+        <Text style = {[styles.textColor,{fontSize: 20,}]}>המשך</Text>
+      </TouchableOpacity> 
     </View>
- 
-    <View style = {{ alignItems:'center'}}>
-    <TouchableOpacity onPress={()=>{handleSignUpCon();}}
-    // {()=> navigation.navigate('SignInScreen')}
-                style={Styles.conTouch} 
-            ><Text style = {[Styles.textColor,{fontSize: 20,}]}>המשך</Text></TouchableOpacity> 
-    </View> 
-    </View>
-    
     </ScrollView>
   );
 }
+
+//make this component available to the app
 export default FormGiver;
-const Styles = StyleSheet.create({
+
+//define styling
+const styles = StyleSheet.create({
+  container:{
+    width:'90%',
+    flex:1,
+    alignSelf:'center'
+  },
   textColor:{
     fontWeight: 'bold',
-    color: 'white',
+    color: color.WHITE,
   },
   conTouch :{
-    borderWidth:2,
-    borderColor:'#fff',
+    borderColor:color.WHITE_GRAY,
     alignItems:'center',
     justifyContent:'center',
     width:100,
     height:50,
-    backgroundColor:'#009387',
+    backgroundColor:color.TURQUOISE,
     borderRadius:10,
-    margin:20,
-    },
-    conTime :{
+    marginBottom:10,
+    }, 
+  imageButton :{
       borderWidth:2,
-      borderColor:'#009387',
+      borderColor:color.TURQUOISE,
       alignItems:'center',
       justifyContent:'center',
-      width:120,
+      width:140,
       height:50,
       // backgroundColor:'#009387',
       borderRadius:10,
-      margin:10,
-      },
-    textInput:{
+      marginVertical:5, 
+  },
+
+  textInput:{
       borderWidth:1,
-      borderColor: 'black',
-      backgroundColor: 'white',
-      // padding:10,
-      // marginBottom:20,
-      borderTopEndRadius:5,
-      borderTopStartRadius:5, 
-      textAlignVertical: 'top',
-      // width: '100%',
+      borderColor:color.BLACK,
+      backgroundColor:color.WHITE,
+      padding:10,
+      height:45,
       textAlign:'right',
-     
-
-    },
-
+      borderRadius:5,
+  },
+  toggle:{
+    ...Platform.select({
+      // ios: {
+      //   flexDirection: 'row',
+      // },
+    android: {
+      transform: [{ scaleX: -1 }]
+    }}),
+  }, 
 });
