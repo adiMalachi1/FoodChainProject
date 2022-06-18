@@ -29,7 +29,7 @@ const EditForm = ({navigation,route}) => {
   const [amountKg, setAmountKg] =  useState('');
   const [numPeople, setNumPeople] =  useState('');
   const [show, setShow] = useState(false);
-  const [showInput, setShowInput] = useState(false);
+  // const [showInput, setShowInput] = useState(false);
   const [showInputNumPeople, setShowInputNumPeople] = useState(false);
   const [showInputNumKg, setShowInputNumKg] = useState(false);
   
@@ -84,19 +84,19 @@ const EditForm = ({navigation,route}) => {
     }
   }
 
-  function onChaneHandler(item){ //if there other field
-    if(item != null){
-    if (item.includes("אחר")){  
-      setShowInput(true)
-    }
-    else{
-      setShowInput(false)
-      }
-    }
-    else{
-        alert("errror")
-    }
-  }
+  // function onChaneHandler(item){ //if there other field
+  //   if(item != null){
+  //   if (item.includes("אחר")){  
+  //     setShowInput(true)
+  //   }
+  //   else{
+  //     setShowInput(false)
+  //     }
+  //   }
+  //   else{
+  //       console.log("errror")
+  //   }
+  // }
 
   useEffect(() => {
   let unmounted = false
@@ -111,11 +111,7 @@ const EditForm = ({navigation,route}) => {
     unmounted = true
   }
   }, []);
-     
-     
   
-    
-
   const handleUpdate = async() => { //updating in firebase and check validation- cant leave an empty field
     if( valueTags == ""  || valueTime == "" || valueTimePick == "" || valueTypeFood == "" ){
       Alert.alert('', "הודעת שגיאה: אין אפשרות להשאיר שדה ריק, יש למלא את כל השדות",[,,{text:"אישור"}])
@@ -297,8 +293,8 @@ const EditForm = ({navigation,route}) => {
           placeholder="הסבר קצר על הארגון/עמותה"
           style = {styles.textInput}
           multiline={true}
+          // autoFocus ={true}
           selectionColor={color.BLACK}
-          autoFocus ={true}
           activeUnderlineColor={color.WHITE}
           underlineColor={color.WHITE}
         />
@@ -335,19 +331,21 @@ const EditForm = ({navigation,route}) => {
             position: 'relative',
             top:0,
         }}
-        mode= 'BADGE'
-        onChangeValue={(item) => onChaneHandler(item)} ></DropDownPicker>
-      <View style ={{display: showInput ? "flex": "none"}}>
+        mode= 'BADGE'>
+        {/* // onChangeValue={(item) => onChaneHandler(item)} > */}
+
+        </DropDownPicker>
+      {/* <View style ={{display: showInput ? "flex": "none"}}>
         <TextInput 
             value={userData ? userData.other : ''}
             onChangeText={(txt) => setUserData({...userData, other: txt})}
             placeholder="אחר"
             style = {[styles.textInput,{marginTop:10,}]}
             selectionColor={color.BLACK}
-            autoFocus ={true}
+            // autoFocus ={true}
             activeUnderlineColor={color.WHITE}
             underlineColor={color.WHITE}/>
-      </View> 
+      </View>  */}
       <Text  style={styles.text}>תגים</Text>
       <DropDownPicker 
         open={openTags}
