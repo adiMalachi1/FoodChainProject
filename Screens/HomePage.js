@@ -81,6 +81,7 @@ const HomePage = ({navigation}) => {
                 }
                 if(type!== child.val().type){  // data we need to showProfiles screen
                     array.push({
+                    'key':child.key,
                     'latitude':child.val().Form.latitude,
                     'longitude':child.val().Form.longitude, 
                     'user':child.val().userName,
@@ -156,7 +157,7 @@ return (
       {markers.map((marker, i) => (
           <Marker key={i} identifier={`id${i}`} coordinate={marker}>
             <Callout tooltip onPress={() =>{navigation.navigate('הצגת פרופיל',{
-              // itemId: item.key,
+              itemId: marker.key,
               itemName: marker.user,
               itemImage: marker.image ? marker.image || marker.image : "https://www.pngall.com/wp-content/uploads/5/User-Profile-PNG-High-Quality-Image.png",
               itemTags : marker.tags,
