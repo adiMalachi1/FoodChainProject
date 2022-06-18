@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import * as Device from 'expo-device';
 import {Title, Caption, } from 'react-native-paper';
+import {db} from '../FirebaseConfig';
 import { color } from '../utils';
 import { StatusBar} from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -30,6 +31,9 @@ const ShowProfiles = ({navigation,route}) => {
   const [notification, setNotification] = useState(false);
   const notificationListener = useRef();
   const responseListener = useRef();
+  const [feedback,setFeedback] =useState('');
+  const [lengthArrayFeedback,setLengthArrayFeedback] =useState('0');
+
 
   useEffect(() => {
     registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
@@ -49,13 +53,44 @@ const ShowProfiles = ({navigation,route}) => {
     };
   }, []);
 
-  const { itemName, itemImage, itemTags, itemCatogary,itemOther, itemType, itemFood, itemAmount, itemNumber,itemTime,itemPickTime, itemPhone,itemExpoPush,itemLatitude,itemLongitude,itemLatitudeUser,itemLongitudeUser,nameCurrentUser} = route.params;
+  useEffect(() => {
+    let unmounted = false
+    // console.log("ruuning effect to fetch data")
+    setTimeout(()=>{
+      // console.log("data loaded for page" )
+      if(!unmounted){
+
+          db.ref(`users/`+itemId+'/match').on('value',  (snapshot) =>{ //get from firebase all exchanges made between current user and other
+            var feedback = []
+            snapshot.forEach((child)=>{
+              if(child.val().status === true){ 
+                if(child.val().rating!==0){
+                  feedback.push(child.val().rating)
+                }
+                // console.log(feedback)
+
+              setFeedback(feedback)
+            }
+            setLengthArrayFeedback(feedback.length)
+
+          })
+          })
+          
+      }},1000)
+    return()=>{
+      unmounted = true
+    }
+  }, []);
+
+  
+  const {itemId, itemName, itemImage, itemTags, itemCatogary,itemOther, itemType, itemFood, itemAmount, itemNumber,itemTime,itemPickTime, itemPhone,itemExpoPush,itemLatitude,itemLongitude,itemLatitudeUser,itemLongitudeUser,nameCurrentUser} = route.params;
   let first,firstValue, second,secondValue,donation,required
   var pdis = getPreciseDistance(
     { latitude:itemLatitude, longitude: itemLongitude },
     { latitude: itemLatitudeUser, longitude:itemLongitudeUser }
-  );
+    );
 
+ 
   const checkData =(value)=>{// check data exist and return as string with comma between each word
       let string = ""
       try{
@@ -78,7 +113,26 @@ const ShowProfiles = ({navigation,route}) => {
         console.log(error)
       }
   }
-  
+  const calculateAvgFeedback=(feedback)=>{ //function that calculate the average of all geedback to current user
+    try{
+      // console.log(feedback.length)
+      if(feedback.length === 0){
+          return 0
+      }
+      else{
+      let sum = 0 
+      let length = feedback.length
+      for (var i=0; i < feedback.length; i++) {
+              sum += feedback[i] 
+      }
+      return sum/length
+
+      }
+    }
+    catch(error){
+      console.log(error)
+    } 
+  }
   const checkCatogary=(catogary)=>{//if catogary is other - returns what the user written instead 
     if(catogary == "אחר")
         return itemOther
@@ -88,6 +142,10 @@ const ShowProfiles = ({navigation,route}) => {
 
   }
 
+  let calFeedback,rating
+  calFeedback = calculateAvgFeedback(feedback)
+  rating = "דירוג: " +calFeedback+'/5 ' +"(" +lengthArrayFeedback +" מדרגים)" 
+  const starImageFilled = 'https://raw.githubusercontent.com/tranhonghan/images/46b0935e75d1a738b8457e6e95f821b861da3986/star_filled.png'
   //put the information we need in fields by function
   let catogary =  checkCatogary(itemCatogary)
   let tags = checkData(itemTags)
@@ -199,7 +257,24 @@ const ShowProfiles = ({navigation,route}) => {
             />
           </MapView>
         </View>
-                
+        <View style = {{ ...Platform.select({
+            ios: {
+                flexDirection: 'row-reverse',
+            },
+            android:{
+                flexDirection: 'row',
+            },
+
+        }),marginTop:10,alignSelf:'center'}}>
+              <Image
+                    style ={styles.starImageStyle}
+                    source = {
+                     {uri: starImageFilled}
+                    
+                    }
+                />
+            <Text style={{color:color.BLACK,marginHorizontal:5,}}>{rating}</Text>
+        </View>
         <View style = {{alignItems:'center',margin:10,}}>
         <TouchableOpacity onPress={async () => {
           await sendPushNotification(itemExpoPush, itemType,nameCurrentUser);
@@ -334,6 +409,11 @@ const styles = StyleSheet.create({
   textColor:{
     fontWeight: 'bold',
     color: color.WHITE_GRAY,
+  },
+  starImageStyle:{
+    width:20,
+    height:20,
+    resizeMode:'cover',
   },
   conTouch :{
     borderWidth:2,
