@@ -172,7 +172,7 @@ const SearchUser = ({navigation}) => {
   const renderItem = (({ item } ) => (  // how shows items - image+typeFood+ Chat, and pass params to showProfiles screen
     <View>
       <TouchableWithoutFeedback onPress={() =>{navigation.navigate('הצגת פרופיל',{
-          // itemId: item.key,
+          itemId: item.key,
           itemName: item.name,
           itemImage: item.image ? item.image || item.image : "https://www.pngall.com/wp-content/uploads/5/User-Profile-PNG-High-Quality-Image.png",
           itemTags : item.tags,
