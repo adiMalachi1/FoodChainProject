@@ -25,7 +25,7 @@ const Tabs = ({navigation, route} ) =>{
     }
 
     return(   
-        <Tab.Navigator     
+        <Tab.Navigator   
             initialRouteName={"איזור אישי"}   
             screenOptions={({ route }) => ({
             headerTitle: route.name,
@@ -48,15 +48,16 @@ const Tabs = ({navigation, route} ) =>{
             tabBarItemStyle:{
               backgroundColor:'#f1f1f1',
               margin:3,
-              borderRadius:10
+              borderRadius:10,
             },
           
             headerRight: () => (
               Platform.OS === 'ios'?
-                  <MaterialCommunityIcons name={"arrow-right"} size={26} color={color.WHITE_GRAY} 
-                  style = {{right:10,}}
-                  onPress = {() => navigation.goBack()}
-                    />
+                  console.log("ios")
+                  // <MaterialCommunityIcons name={"arrow-right"} size={26} color={color.WHITE_GRAY} 
+                  // style = {{right:10,}}
+                  // onPress = {() => navigation.goBack()}
+                  //   />
                   :
               <Ionicons
                 name='log-out-outline'
@@ -113,32 +114,34 @@ const Tabs = ({navigation, route} ) =>{
                 }
                 ],)}/>
               :
-              <MaterialCommunityIcons name={"arrow-right"} size={26} color={color.WHITE_GRAY} 
-                style = {{left:10,}}
-                onPress = {() => navigation.goBack()}
-                  />
+              console.log("android")
+              // <MaterialCommunityIcons name={"arrow-right"} size={26} color={color.WHITE_GRAY} 
+              //   style = {{left:10,}}
+              //   onPress = {() => navigation.goBack()}
+              //     />
             ),
                  
+            
             tabBarIcon: ({ focused, color, size }) => {
               let iconName;
-              if (route.name === "מפה") {
-                iconName = focused ? 'map' : 'map-outline'; } 
-              else if (route.name === name) {
-                iconName = focused ? 'people' : 'people-outline';} 
-              else if (route.name === "צ'אט") {
-                iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';
-              }
-              else if (route.name === "איזור אישי") {
-                iconName = focused ? 'person' : 'person-outline';
-              }
-              return <Ionicons name={iconName} size={size} color={color} />;
+                if (route.name === "מפה") {
+                  iconName = focused ? 'map' : 'map-outline'; } 
+                else if (route.name === name) {
+                  iconName = focused ? 'people' : 'people-outline';} 
+                else if (route.name === "צ'אט") {
+                  iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';
+                }
+                else if (route.name === "איזור אישי") {
+                  iconName = focused ? 'person' : 'person-outline';
+                }
+                return <Ionicons name={iconName} size={size} color={color} />;
             },
           })}>
-        
+
           <Tab.Screen name="מפה" component={HomePage}  />
           <Tab.Screen name={name} component={SearchUser} />
           <Tab.Screen name="צ'אט" component={ChatList} />
-          <Tab.Screen name="איזור אישי" component={Dashboard} />
+          <Tab.Screen name="איזור אישי" component={Dashboard}/>
         </Tab.Navigator>
     );
 }  
