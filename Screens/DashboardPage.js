@@ -223,7 +223,7 @@ const DashboardPage = ({navigation}) => {
             <Text style={styles.textMatch}>החלפות שבוצעו</Text>
             <FlatList
               data={match}
-              extraData={match.sort((a, b) => a.date < b.date)}
+              extraData={match.sort((a, b) => a.date > b.date)}
               style={{width:'90%',margin:10,}}
               renderItem = {renderItem}
               keyExtractor = {(item)=>item.key}
