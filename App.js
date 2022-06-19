@@ -1,6 +1,7 @@
 import React from "react";
 import RootStackScreen from "./navigation/RootStackScreen";
 import {NavigationContainer} from '@react-navigation/native';
+import "react-native-gesture-handler";
 
 import {LogBox} from "react-native";
 
