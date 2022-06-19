@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "FoodChainProject",
-    "slug": "FoodChainProject",
+    "name": "FoodChain",
+    "slug": "FoodChain",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/logoFoodChain.png",
@@ -18,18 +18,20 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "AndroidManifest.xml",
       "config": {
         "googleMapsApiKey": "AIzaSyB3WFgm1II1YgQ1Ai-DiI2wsjd85CzKgRY"
       }
       
     },
     "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#FFFFFF"
+      "package":"com.foodchain.project",
+      "config": {
+        "googleMaps": { "apiKey": "AIzaSyBBD6R5fwoRvDz8FugKt3Z2iGFZavOP7uo" }  
       },
-      "package": "AndroidManifest.xml"
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/logoFoodChain.png",
+        "backgroundColor": "#FFFFFF"
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"
