@@ -214,7 +214,7 @@ const pickImageGallery = async () => {//pick image we want to upload from librar
         return;
       }
       if(ValidatePhoneNumber(userData.phone)=== false){
-        Alert.alert('', "הודעת שגיאה: מס' הפלאפון אינו תקין, אנא הזן את המספר הסלולרי שלך",[,,{text:"אישור"}])
+        Alert.alert('', "הודעת שגיאה: מס' טלפון נייד אינו תקין, אנא הזן את המספר הסלולרי שלך",[,,{text:"אישור"}])
         return;
       }
      auth.currentUser.updateEmail(userData.email) .then(()=>{
@@ -283,9 +283,9 @@ const pickImageGallery = async () => {//pick image we want to upload from librar
             onChangeText={(txt) => setUserData({...userData, userName: txt})}
             style={styles.textInput}
           />
-        <Text  style={{marginVertical:10,writingDirection:'rtl'}}>פלאפון סלולרי</Text>
+        <Text  style={{marginVertical:10,writingDirection:'rtl'}}>טלפון נייד</Text>
         <TextInput
-            placeholder="מס' פלאפון"
+            placeholder="טלפון נייד"
             keyboardType="number-pad"
             autoCorrect={false}
             value={userData ? userData.phone : ''}
