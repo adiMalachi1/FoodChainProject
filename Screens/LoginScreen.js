@@ -9,6 +9,7 @@ import {
     Pressable,
     TextInput,
     StatusBar,
+    ScrollView,
 } from 'react-native';
 import {auth,db} from '../FirebaseConfig';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -88,6 +89,7 @@ const LoginScreen = ({navigation}) => {
             }
             
           })
+
         })
         .catch(error => {    //catch error and show to user by alert
           console.log(error)
@@ -123,6 +125,7 @@ const LoginScreen = ({navigation}) => {
   }
 
   return(
+    <ScrollView style={{flex:1,backgroundColor:color.TURQUOISE}}>
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor={color.TURQUOISE} />
       <View style =  {styles.center}>
@@ -178,8 +181,7 @@ const LoginScreen = ({navigation}) => {
           </TouchableOpacity> 
       </View> 
     </View> 
-    
-    
+  </ScrollView>
   )}
 
   //make this component available to the app
@@ -188,8 +190,8 @@ const LoginScreen = ({navigation}) => {
   //define styling
   const styles = StyleSheet.create({
     container: {
-      backgroundColor: color.TURQUOISE,
-      flex: 1,
+      // backgroundColor: color.TURQUOISE,
+      // flex: 1,
       paddingVertical:'25%',
       alignItems: 'center',
     },
