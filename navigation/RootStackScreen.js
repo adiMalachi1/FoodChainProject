@@ -1,14 +1,13 @@
 import React from 'react';
 import {Alert, Platform} from 'react-native'
 import { createStackNavigator } from '@react-navigation/stack';
-import HomeScreen from '../Screens/HomeScreen';
 import LoginScreen from '../Screens/LoginScreen';
 import SignUpScreen from '../Screens/SignUpScreen';
 import ForgotPassword from '../Screens/ForgotPassword';
 import FormGetter from '../Screens/FormGetter';
 import FormGiver from '../Screens/FormGiver';
 import Tabs from './Tabs'
-import HomePage from '../Screens/HomePage';
+import MapUsers from '../Screens/MapUsers';
 import SearchUser from '../Screens/SearchUser';
 import Dashboard from '../Screens/DashboardPage';
 import EditForm from '../Screens/EditForm';
@@ -78,7 +77,7 @@ return(
                 onPress: ()=>{ 
                   auth.signOut()
                   .then(() => {
-                    navigation.navigate("HomeScreen")
+                    navigation.navigate("LoginScreen")
                   })
                   .catch(error => alert(error.message))},
                 
@@ -113,7 +112,7 @@ return(
                     auth
                     .signOut()
                     .then(() => {
-                      navigation.navigate("HomeScreen")
+                      navigation.navigate("LoginScreen")
                   })
                   .catch(error => alert(error.message))
                 } 
@@ -128,7 +127,6 @@ return(
           ),
         }}>
         
-        <RootStack.Screen name="HomeScreen" component={HomeScreen}	options={{header: () => null}}/>
         <RootStack.Screen name="LoginScreen" component={LoginScreen}	options={{header: () => null}}/>
         <RootStack.Screen name="מסך הרשמה" component={SignUpScreen}options={{header: () => null}}/>
         <RootStack.Screen name="ForgotPassword" component={ForgotPassword} options={{header: () => null}}/>
@@ -139,7 +137,7 @@ return(
           headerTitle: getHeaderTitle(route),
           headerShown: false,
         })}/>
-        <RootStack.Screen name="HomePage" component={HomePage}/>
+        <RootStack.Screen name="MapUsers" component={MapUsers}/>
         <RootStack.Screen name="משתמשים" component={SearchUser}/>
         <RootStack.Screen name="Dashboard" component={Dashboard} />
         <RootStack.Screen name="עריכת פרטי הטופס" component={EditForm}/>
