@@ -107,11 +107,11 @@ const SignUpScreen = ({navigation}) => {
            }
            if(phone == "" || ValidatePhoneNumber(phone)=== false){ //phone validation
                 if(phone == ""){
-                    Alert.alert('', "הודעת שגיאה: מס' פלאפון הינו שדה חובה, אנא הזן אותו",[,,{text:"אישור"}])
+                    Alert.alert('', "הודעת שגיאה: מס' טלפון נייד הינו שדה חובה, אנא הזן אותו",[,,{text:"אישור"}])
                     return;
                 }
                 else{
-                    Alert.alert('', "הודעת שגיאה: מס' הפלאפון אינו תקין, אנא הזן את המספר הסלולרי שלך",[,,{text:"אישור"}])
+                    Alert.alert('', "הודעת שגיאה: מס' טלפון נייד אינו תקין, אנא הזן את המספר הסלולרי שלך",[,,{text:"אישור"}])
                     return;
                 }
            }
@@ -131,26 +131,103 @@ const SignUpScreen = ({navigation}) => {
             }
            
         }
+
        
         else if(confirmPassword !== password){ // the passwords dont the same
             Alert.alert('', "הודעת שגיאה: הסיסמאות אינן תואמות, אנא נסה שנית",[,,{text:"אישור"}])
             return;
         }
         else if(ValidatePhoneNumber(phone)=== false){
-            Alert.alert('', "הודעת שגיאה: מס' הפלאפון אינו תקין, אנא הזן את המספר הסלולרי שלך",[,,{text:"אישור"}])
+            Alert.alert('', "הודעת שגיאה: מס' טלפון נייד אינו תקין, אנא הזן את המספר הסלולרי שלך",[,,{text:"אישור"}])
             return;
         }
         else if(isGetter === false && isGiver === false){
             Alert.alert('', "הודעת שגיאה: עליך לבחור האם אתה תורם או נתרם",[,,{text:"אישור"}])
             return;
         }
+        // else if(email!=="" && (isGetter|| isGiver )){
+        //     try {
+        //         alert("hi")
+        //          auth.signInWithEmailAndPassword(email, password);
+        //          auth.currentUser.delete()
+        //       } catch (e) {
+        //         console.log(e);
+        //       }
+            // db.ref(`users/`).on('value', function (snapshot) { // ref to this user in firebase
+            //     if(snapshot.exists()){
+                    
+            //     snapshot.forEach((child)=>{
+            //         console.log(auth.currentUser)
+            //         if(child.val().email === email){
+            //             alert("y")
+            //             console.log(child.val().email)
+            //             // var user = child.val().userCredentials; 
+            //             var key = child.key
+            //             var user = child.val();
+                //         console.log(user)       
+                //  alert(user.user)
+                    //     if(key){
+                    //         db.ref(`users/`+key).on('value', function (snapshot) { // ref to this user in firebase
+                    //             var check = snapshot.child("/Form").exists(); 
+                    
+                    //             if(!check ){
+                    //                 auth.currentUser.delete()
+
+                    //             //   auth.deleteUsers(key) 
+                    //               .then(userCredentials => {
+                    //                 console.log(userCredentials)
+                    //                 db.ref('/users').child(key).remove()//remove from db
+                    //                 // console.log('Successfully deleted user');
+                    //                 Alert.alert('', "הודעת שגיאה: כתובת אימייל זו אינה קיימת, אנא צור חשבון קודם",[,,{text:"אישור"}])
+                    //                   return;
+                    
+                    //               })
+                    //               .catch((error) => {
+                    //                 console.log('Error deleting user:', error);
+                    //               })   // delete user from auth  
+                    
+                    //             }
+                    //      })
+                    //     }
+
+                    // }
+                    // }  else{   auth.createUserWithEmailAndPassword(email,password)
+                    // .then((res) => {     
+                    //     if (auth.currentUser) {
+                    //         const userid = auth.currentUser.uid;
+                    //         if (userid) {
+                    //             alert(userid)
+                    //             db.ref('users/' + res.user.uid ).set({
+                    //                 userName: user,
+                    //                 email: email,
+                    //                 phone: phone, 
+                    //                 password: password,
+                    //                 type:type,
+                                    
+                    //             })
+                    //              $recaptcha.current.open();
+                    //         } 
+                    //         else{
+                    //             Alert.alert('', "הודעת שגיאה: זהו לא המזהה הנכון",[,,{text:"אישור"}])
+                    //         }
+                    //     }
+                    //     else{
+                    //         Alert.alert('', "הודעת שגיאה: זהו אינו משתמש פעיל במערכת, יתכן כי משתמש זה כבר מחובר ממכשיר אחר, אנא התנתק ונסה שנית",[,,{text:"אישור"}])
+                    //     } 
+                    // })}
+                // })}})
+
+                   
+            
+        // }
         else{
             /// after validation,create an account-user and put all field under current user in realtime db firebase
             auth.createUserWithEmailAndPassword(email,password)
-                .then((res) => {
+                .then((res) => {     
                     if (auth.currentUser) {
                         const userid = auth.currentUser.uid;
                         if (userid) {
+                            // alert(userid)
                             db.ref('users/' + res.user.uid ).set({
                                 userName: user,
                                 email: email,
@@ -169,6 +246,7 @@ const SignUpScreen = ({navigation}) => {
                         Alert.alert('', "הודעת שגיאה: זהו אינו משתמש פעיל במערכת, יתכן כי משתמש זה כבר מחובר ממכשיר אחר, אנא התנתק ונסה שנית",[,,{text:"אישור"}])
                     } 
                 })
+
                 .catch((error) => {
                     console.log(error.message);
                     switch(error.message) {
@@ -201,15 +279,15 @@ return (
             <View style={styles.inputContainer2}>
 
             <TextInput
-            value={user}
-            onChangeText={(userName) => setUser(userName)}
-            placeholder="שם תורם/נתרם"
-            autoCapitalize="none"
-            textAlign='right'
-            autoCorrect={false}
-            style = {styles.textInput}
-            autoFocus = {true}
-            />
+                value={user}
+                onChangeText={(userName) => setUser(userName)}
+                placeholder="שם ארגון"
+                autoCapitalize="none"
+                textAlign='right'
+                autoCorrect={false}
+                style = {styles.textInput}
+                autoFocus = {true}
+                />
             <MaterialCommunityIcons name={"account"} size={22} color={color.ICONEYE} />
             </View>
 
@@ -227,13 +305,13 @@ return (
                 />
                 <MaterialCommunityIcons name={"email"} size={22} color={color.ICONEYE} />
             </View>
-             <Text  style={{marginVertical:10,writingDirection:'rtl'}}>פלאפון סלולרי</Text>
+             <Text  style={{marginVertical:10,writingDirection:'rtl'}}>טלפון נייד</Text>
              <View style={styles.inputContainer2}>
 
             <TextInput
                 value={phone}
                 onChangeText={(userPhone) => setPhone(userPhone)}
-                placeholder="מס' פלאפון"
+                placeholder="טלפון נייד"
                 keyboardType="numeric"
                 autoCapitalize="none"
                 autoCorrect={false}
@@ -276,6 +354,7 @@ return (
                     <MaterialCommunityIcons name={rightConfirmIcon} size={22} color={color.ICONEYE} />
                 </Pressable>
             </View>
+            <Text style = {{textAlign:'center',marginHorizontal:5,marginTop:10}}>בחר ב"תורם" כדי להציע מזון לתרומה או "נתרם" כדי לקבל תרומות מזון</Text>
             <View style={styles.section}>  
                 <Text style={styles.paragraph}>נתרם</Text>
                 <Checkbox
@@ -293,21 +372,21 @@ return (
                 />
             </View>
             <Recaptcha
-            ref={$recaptcha}
-            lang="iw"//for hebrew
-            siteKey="6Lful3YeAAAAAO13Y30Zsnx33PuTG0ms3xJ6-VXN"
-            baseUrl="http://127.0.0.1"
-            onError={(err) => {
-                // alert('שגיאה');
-                console.warn(err);
-            }}
-            onVerify={onVerify}
-            onExpire={onExpire} />
+                ref={$recaptcha}
+                lang="iw"//for hebrew
+                siteKey="6Lful3YeAAAAAO13Y30Zsnx33PuTG0ms3xJ6-VXN"
+                baseUrl="http://127.0.0.1"
+                onError={(err) => {
+                    // alert('שגיאה');
+                    console.warn(err);
+                }}
+                onVerify={onVerify}
+                onExpire={onExpire} />
             <View style = { styles.center}>
                 <TouchableOpacity
                     onPress={handleSignUp}
                     style={styles.conTouch}  >
-                 <Text style = {[styles.textColor,{fontSize: 20,}]}>המשך</Text>
+                 <Text style = {[styles.textColor,{fontSize: 20,margin:10}]}>המשך</Text>
                 </TouchableOpacity>
             </View>
         </KeyboardAvoidingView>
@@ -324,7 +403,7 @@ const styles = StyleSheet.create({
     container: {
         backgroundColor: color.WHITE_GRAY,
         flex: 1, 
-        marginVertical:'10%',
+        marginVertical:'7%',
         marginHorizontal:'5%',
     },
     inputContainer2: {
@@ -367,8 +446,8 @@ const styles = StyleSheet.create({
         borderColor:color.WHITE_GRAY,
         alignItems:'center',
         justifyContent:'center',
-        width:150,
-        height:50,
+        // width:150,
+        // height:50,
         backgroundColor:color.TURQUOISE,
         borderRadius:10,
         },
@@ -379,7 +458,7 @@ const styles = StyleSheet.create({
     section: {
         alignItems: 'center',
         alignSelf:'center',
-        marginVertical:25,
+        marginVertical:10,
         ...Platform.select({
             ios: {
               flexDirection: 'row',
