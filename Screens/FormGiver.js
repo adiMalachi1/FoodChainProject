@@ -173,13 +173,22 @@ const onProgress = (progress) => {
   setProgress(progress);
 };
 
-const toggleSwitch = () => { //toggle for location + validation
+const toggleSwitch = async() => { //toggle for location + validation
   setIsEnabled(previousState => !previousState)
   if (!isEnabled){
     if(locationLat===null || locationLon===null ){
-      Alert.alert('', "הודעת שגיאה: עליך לאשר הרשאות גישה למיקום על מנת להמשיך",[,,{text:"אישור"}])
       setLocation("")
       setIsEnabled(false)
+      const status  = await Location.requestForegroundPermissionsAsync();
+      // console.log(status)
+      if(status.granted === false) {
+              Alert.alert('',"סירבת לאפליקציה הזו לגשת למיקום שלך, עליך לשנות זאת ולאפשר גישה על מנת להמשיך",[,,{text:"אישור"}]);
+              return;
+      }
+      let location = await Location.getCurrentPositionAsync(); 
+      setIsEnabled(true)
+      setLocation("המיקום הנוכחי הוא: " + location.coords.latitude + ','+ location.coords.longitude)
+ 
     }
     else{
       setLocation("המיקום הנוכחי הוא: " + locationLat + ','+ locationLon)
@@ -399,11 +408,11 @@ const handleSignUpCon = () =>{ //before continue, check validation + put the inf
 
       <TouchableOpacity style={styles.imageButton} onPress={pickImageCamera}><Text style = {{fontSize: 15, color:color.BLACK}}>תמונה מהמצלמה</Text></TouchableOpacity> 
       <TouchableOpacity style={styles.imageButton} onPress={pickImageGallery}><Text style = {{fontSize: 15, color:color.BLACK}}>תמונה מהגלריה</Text></TouchableOpacity> 
-      {imageUrl && <Image source={{uri:imageUrl}} style = {{ width:100, height:100,borderRadius:15,marginTop:5 }} />}</View>  
+      {imageUrl && <Image source={{uri:imageUrl}} style = {{ width:100, height:100,borderRadius:15,marginTop:5,marginBottom:-10 }} />}</View>  
       <View style={{display: show ? "flex": "none",alignSelf:'center'} }>
           <Text> מעלה {progress} מתוך 100% </Text>
       </View>  
-      <Text  style={{ marginBottom:20,writingDirection:'rtl'}}>סוג האוכל</Text>
+      <Text  style={{marginVertical:20,writingDirection:'rtl'}}>סוג האוכל</Text>
         <DropDownPicker 
         open={openTypeFood}
         value={valueTypeFood}
@@ -472,31 +481,6 @@ const handleSignUpCon = () =>{ //before continue, check validation + put the inf
             nestedScrollEnabled: true,
       }}> </DropDownPicker>
     
-      <Text  style={{ marginVertical:20,writingDirection:'rtl'}}>יש לצרוך עד</Text>
-      <DropDownPicker
-        open={openWhen}
-        value={valueWhen}
-        items={itemWhen}
-        setOpen={setOpenWhen}
-        setValue={setValueWhen}
-        setItems={setItemWhen} 
-        labelStyle={{textAlign:'left'}}
-        selectedItemContainerStyle={{direction:'rtl'}}
-        listItemLabelStyle={{
-          textAlign:"left",
-          direction:'rtl',
-        }}
-        placeholderStyle={{textAlign:'left',}}
-        style = {{direction:'rtl' }}
-        dropDownContainerStyle={{
-          position: 'relative',
-          top:0,
-        }}
-        placeholder= {'אנא בחר תוך כמה זמן יש לצרוך את האוכל'} 
-        listMode="SCROLLVIEW"
-          scrollViewProps={{
-            nestedScrollEnabled: true,
-      }}> </DropDownPicker>
       <Text  style={{ marginVertical:20,writingDirection:'rtl'}}>הזמן הכי טוב לאיסוף, בין השעות:</Text>
       <DropDownPicker 
         open={openTime}
@@ -525,6 +509,31 @@ const handleSignUpCon = () =>{ //before continue, check validation + put the inf
         scrollViewProps={{
           nestedScrollEnabled: true,
         }}></DropDownPicker>
+         <Text  style={{ marginVertical:20,writingDirection:'rtl'}}>יש לצרוך עד</Text>
+      <DropDownPicker
+        open={openWhen}
+        value={valueWhen}
+        items={itemWhen}
+        setOpen={setOpenWhen}
+        setValue={setValueWhen}
+        setItems={setItemWhen} 
+        labelStyle={{textAlign:'left'}}
+        selectedItemContainerStyle={{direction:'rtl'}}
+        listItemLabelStyle={{
+          textAlign:"left",
+          direction:'rtl',
+        }}
+        placeholderStyle={{textAlign:'left',}}
+        style = {{direction:'rtl' }}
+        dropDownContainerStyle={{
+          position: 'relative',
+          top:0,
+        }}
+        placeholder= {'אנא בחר תוך כמה זמן יש לצרוך את האוכל'} 
+        listMode="SCROLLVIEW"
+          scrollViewProps={{
+            nestedScrollEnabled: true,
+      }}> </DropDownPicker>
       <View style = {{flexDirection:'column',alignItems:'center',justifyContent:'center'}}>
         <Text style = {{marginTop:20,writingDirection:'rtl',marginBottom:10}}>
           השתמש במיקום הנוכחי שלי:  </Text>
