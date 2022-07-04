@@ -1,14 +1,14 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Dashboard from '../Screens/DashboardPage';
-import HomePage from '../Screens/HomePage';
+import MapUsers from '../Screens/MapUsers';
 import SearchUser from '../Screens/SearchUser';
 import ChatList from '../Screens/ChatList'
-import React from 'react';
-import {Alert,Platform } from 'react-native';
-import {auth} from '../FirebaseConfig';
+import {Alert,Platform, View,FlatList} from 'react-native';
+import {auth,db} from '../FirebaseConfig';
 import { color } from '../utils';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import React, { useState, useEffect } from 'react'
+import uuid from 'react-native-uuid';
 
 //create tab navigator
 const Tab = createBottomTabNavigator();
@@ -23,9 +23,131 @@ const Tabs = ({navigation, route} ) =>{
     else{
       name = 'תורמים'
     }
+    // const [ spinner, setSpinner ] = useState(true);
+    const [data, setData] = useState([]);
+    const [dataUser, setDataUser] = useState([]);
+    const [show, setShow] = useState(false);
 
+    // const [chatList, setchatList] = useState([]);
+    const getData = () => { //get from firebase data we need for chat
+      const userid = auth.currentUser.uid;
+      var type
+      db.ref(`users/`+userid).once('value', function (snapshot) {
+        type =  (snapshot.val().type);
+        setDataUser({'type':(snapshot.val().type),'key':userid,'name': (snapshot.val().userName),'email': (snapshot.val().email),'image':(snapshot.val().image), 'phone':(snapshot.val().phone),'expoPush':snapshot.val().expoPushToken})
+      
+      });
+
+      db.ref(`users/`).on('value',  (snapshot) =>{
+          var users =[]
+          snapshot.forEach((child)=>{
+              if(type !== child.val().type){ 
+                      users.push({
+                        type:child.val().type,
+                        key:child.key,
+                        name:child.val().userName,
+                        email: child.val().email,
+                        image:child.val().image,
+                        expoPush:child.val().expoPushToken?child.val().expoPushToken:"",
+                        phone: child.val().phone
+
+                     })
+                     setData(users)
+                 }
+            })
+           
+      })
+   
+  };
+  
+const createChatList = (data) => { //create chat list to user with all user from the other type by their id  
+  db.ref('/chatlist/' + dataUser.key + '/' + data.key)
+    .once('value')
+    .then(snapshot => {
+
+      if (snapshot.val() == null) {
+        let roomId = uuid.v4();
+        let myData = {
+            key: dataUser.key,
+            name: dataUser.name,
+            image:  dataUser.image
+            ? dataUser.image ||
+            dataUser.image : "https://www.pngall.com/wp-content/uploads/5/User-Profile-PNG-High-Quality-Image.png",
+            phone: dataUser.phone,
+            lastMsg: '',
+            expoPush:dataUser.expoPush?dataUser.expoPush:"",
+            roomId,
+        };
+        
+        db.ref('/chatlist/' + data.key + '/' + dataUser.key)
+          .update(myData)
+          .then(() => console.log('Data updated.'));
+
+        data.roomId = roomId;
+        db.ref('/chatlist/' + dataUser.key + '/' + data.key)
+          .update({
+            key: data.key,
+            name:data.name,
+            image: data.image
+            ? data.image ||
+            data.image : "https://www.pngall.com/wp-content/uploads/5/User-Profile-PNG-High-Quality-Image.png",
+            phone:data.phone,
+            lastMsg:'',
+            expoPush:data.expoPush?data.expoPush:"",
+            roomId: roomId,
+          })
+          .then(() => console.log('Data updated.'));
+          
+      }
+      //if detail of user updated so update in firebase too
+      let updateData = {
+          name: dataUser.name,
+          image:  dataUser.image
+          ? dataUser.image ||
+          dataUser.image : "https://www.pngall.com/wp-content/uploads/5/User-Profile-PNG-High-Quality-Image.png",
+          phone: dataUser.phone,
+          expoPush:dataUser.expoPush?dataUser.expoPush:"",
+      };
+      
+      db.ref('/chatlist/' + data.key + '/' + dataUser.key)
+        .update(updateData)
+        .then(() => console.log('Data updated.'));
+
+      db.ref('/chatlist/' + dataUser.key + '/' + data.key)
+      .update({
+          name:data.name,
+          image: data.image
+          ? data.image ||
+          data.image : "https://www.pngall.com/wp-content/uploads/5/User-Profile-PNG-High-Quality-Image.png",
+          phone:data.phone,
+          expoPush:data.expoPush?data.expoPush:"",
+        })
+
+    });
+  };
+
+  useEffect(() => {
+    let unmounted = false
+    setTimeout(()=>{
+      console.log("data loaded for page" )
+      if(!unmounted){
+      getData()
+      // createChatList()
+    
+    }},1000)
+  return()=>{
+    unmounted = true
+  }
+  }, [])
+   const renderItemNotShow = ({item}) => (
+        <View>
+        {createChatList(item)} 
+        </View>
+    );
     return(   
+
         <Tab.Navigator   
+       
             initialRouteName={"איזור אישי"}   
             screenOptions={({ route }) => ({
             headerTitle: route.name,
@@ -51,9 +173,20 @@ const Tabs = ({navigation, route} ) =>{
               borderRadius:10,
             },
           
+           
             headerRight: () => (
+              
               Platform.OS === 'ios'?
-                  console.log("ios")
+                  // console.log("ios")
+                  <View  style = {{display: show ? "flex": "none"}}>
+
+                  <FlatList
+                    showsVerticalScrollIndicator={false}
+                    keyExtractor = {(item)=>item.key}
+                    data={data}
+                    style={{width:'100%',margin:10,alignSelf:'center'}}
+                    renderItem={renderItemNotShow}/>
+             </View> 
                   // <MaterialCommunityIcons name={"arrow-right"} size={26} color={color.WHITE_GRAY} 
                   // style = {{right:10,}}
                   // onPress = {() => navigation.goBack()}
@@ -71,7 +204,7 @@ const Tabs = ({navigation, route} ) =>{
                     onPress: ()=>{ 
                       auth.signOut()
                       .then(() => {
-                        navigation.navigate("HomeScreen")
+                        navigation.navigate("LoginScreen")
                       })
                       .catch(error => alert(error.message))},
                     
@@ -79,7 +212,7 @@ const Tabs = ({navigation, route} ) =>{
                     text:'לא',
                     onPress: ()=>{ 
                       return
-                    },
+                   },
                   }
                   ],
                   )
@@ -99,14 +232,14 @@ const Tabs = ({navigation, route} ) =>{
                   text: 'לא',
                   onPress: ()=>{ 
                       return
-                    
+                     
                 }},{
                   text: 'כן',
                   onPress: ()=>{ 
                         auth
                         .signOut()
                         .then(() => {
-                          navigation.navigate("HomeScreen")
+                          navigation.navigate("LoginScreen")
                       })
                       .catch(error => alert(error.message))
                     } 
@@ -114,7 +247,17 @@ const Tabs = ({navigation, route} ) =>{
                 }
                 ],)}/>
               :
-              console.log("android")
+              // console.log("android")
+              <View  style = {{display: show ? "flex": "none"}}>
+
+              <FlatList
+                showsVerticalScrollIndicator={false}
+                keyExtractor = {(item)=>item.key}
+                data={data}
+                style={{width:'100%',margin:10,alignSelf:'center'}}
+                renderItem={renderItemNotShow}/>
+         </View> 
+            
               // <MaterialCommunityIcons name={"arrow-right"} size={26} color={color.WHITE_GRAY} 
               //   style = {{left:10,}}
               //   onPress = {() => navigation.goBack()}
@@ -138,9 +281,9 @@ const Tabs = ({navigation, route} ) =>{
             },
           })}>
 
-          <Tab.Screen name="מפה" component={HomePage}  />
+          <Tab.Screen name="מפה" component={MapUsers}  />
           <Tab.Screen name={name} component={SearchUser} />
-          <Tab.Screen name="צ'אט" component={ChatList} />
+          <Tab.Screen name="צ'אט" component={ChatList} initialParams={dataUser}/>
           <Tab.Screen name="איזור אישי" component={Dashboard}/>
         </Tab.Navigator>
     );
