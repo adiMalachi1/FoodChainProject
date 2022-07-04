@@ -47,7 +47,7 @@ const DashboardPage = ({navigation}) => {
           db.ref(`users/`+userid+'/match').on('value',  (snapshot) =>{ //get from firebase all exchanges made between current user and other
             var users =[]
             snapshot.forEach((child)=>{
-              if(child.val().status === true){
+            if(child.val().status === true){ 
               users.push({
                 key:child.key,
                 date:child.val().date,
@@ -85,12 +85,13 @@ const DashboardPage = ({navigation}) => {
        }
        //if no permissions, exit the function
        if (finalStatus !== 'granted') {
-         alert('Failed to get push token for push notification!');
-         return;
+        Alert.alert('', "הודעת שגיאה: סירבת לאפליקציה לשלוח התראות. הדבר יגרום לביצועים נמוכים יותר, אנא שנה זאת",[,,{text:"אישור"}])
+        return;
        }
+
        //get pusk notification token
        const token = (await Notifications.getExpoPushTokenAsync()).data;
-       console.log(token);
+      //  console.log(token);
        let uid = auth.currentUser.uid
       //  alert(uid)
        db.ref('users/' + uid ).update({
@@ -179,7 +180,7 @@ const DashboardPage = ({navigation}) => {
     </View>
   ))
   return (
-    <ScrollView>
+      <ScrollView >
     <View style ={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor={color.TURQUOISE} />
         <View style={styles.header}>
@@ -219,19 +220,28 @@ const DashboardPage = ({navigation}) => {
               <Text style={styles.userBtnTxt}>עריכת פרטים אישיים</Text>
             </TouchableOpacity >
           </View>
+          {/* </ScrollView> */}
+
+
+          {/* <ScrollView style={{height:"10%"}}> */}
           <View >
             <Text style={styles.textMatch}>החלפות שבוצעו</Text>
             <FlatList
               data={match}
-              extraData={match.sort((a, b) => a.date > b.date)}
+              // data={match.sort((a, b) =>(a.date.toLowerCase() - b.date.toLowerCase()?1:-1))}
+
+              extraData={match.sort((a, b) =>(a.date-b.date))}
               style={{width:'90%',margin:10,}}
               renderItem = {renderItem}
               keyExtractor = {(item)=>item.key}
               ItemSeparatorComponent = {renderSeparator}
+              inverted={true}
               scrollEnabled={false}/>
           </View>
+    {/* </ScrollView> */}
     </View>
-    </ScrollView>
+    </ScrollView> 
+
 
   );
 };
