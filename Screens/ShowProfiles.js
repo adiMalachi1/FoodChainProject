@@ -125,7 +125,13 @@ const ShowProfiles = ({navigation,route}) => {
       for (var i=0; i < feedback.length; i++) {
               sum += feedback[i] 
       }
-      return sum/length
+     
+      let average = (sum/length)
+      // alert(average.toString().length)
+      if(average.toString().length > 5){
+       average = Number(average.toFixed(3))
+      }
+      return average
 
       }
     }
@@ -277,7 +283,7 @@ const ShowProfiles = ({navigation,route}) => {
         </View>
         <View style = {{alignItems:'center',margin:10,}}>
         <TouchableOpacity onPress={async () => {
-          await sendPushNotification(itemExpoPush, itemType,nameCurrentUser);
+          await sendPushNotification(itemExpoPush, itemType,nameCurrentUser,itemName);
         }}
                 style={styles.conTouch} 
             ><Text style = {[styles.textColor,{fontSize: 18,margin:10}]}>{donation}</Text></TouchableOpacity>
@@ -299,14 +305,16 @@ const ShowProfiles = ({navigation,route}) => {
 export default ShowProfiles;
 
 //define styling
-async function sendPushNotification(expoPushToken, itemType,nameCurrentUser) { //send push notification from current user to chosen user in profile
+async function sendPushNotification(expoPushToken, itemType,nameCurrentUser,itemName) { //send push notification from current user to chosen user in profile
   // alert(expoPushToken)
-  var msg
+  var msg,alert
   if(itemType == "תורם"){
     msg = 'יש לך בקשת תרומה מאת '+ nameCurrentUser
+    alert = "בקשת התרומה נשלחה אל " + itemName
   }
   else{
     msg = 'יש לך הצעת תרומה מאת '+ nameCurrentUser
+    alert = "הצעת התרומה נשלחה אל " + itemName
 
   }
   const message = {
@@ -327,6 +335,7 @@ async function sendPushNotification(expoPushToken, itemType,nameCurrentUser) { /
     },
     body: JSON.stringify(message),
   });
+  Alert.alert('', alert,[,,{text:"אישור"}])
 }
 
 async function registerForPushNotificationsAsync() { // register for push notifications and ask permission
